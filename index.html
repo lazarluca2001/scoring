@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Select Categories</title>
+    <title>Better Scoring - Results</title>
     <style>
         :root {
             --bg-dark: #000000;
             --card-gray: #161616;
             --neon-lime: #ccff00;
             --text-dim: #888;
+            --recall-bg: rgba(204, 255, 0, 0.1);
         }
 
         body {
@@ -34,154 +35,154 @@
             flex-direction: column;
         }
 
-        /* Fejléc visszanyíllal */
+        /* Header */
         .header {
-            padding: 50px 25px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            padding: 50px 20px 10px;
+            border-bottom: 1px solid #222;
         }
 
-        .back-btn {
-            font-size: 24px;
-            text-decoration: none;
-            color: white;
-        }
-
-        .event-mini-info h2 {
-            font-size: 18px;
-            margin: 0;
+        .category-title {
             color: var(--neon-lime);
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
         }
 
-        .event-mini-info p {
+        .event-subtitle {
             font-size: 12px;
             color: var(--text-dim);
-            margin: 2px 0 0;
+            margin: 5px 0;
         }
 
-        /* Kategória lista */
-        .category-container {
+        /* Táblázat stílus */
+        .results-container {
             flex: 1;
-            padding: 0 20px;
             overflow-y: auto;
+            padding: 10px 0;
         }
 
-        .section-title {
-            font-size: 14px;
-            color: white;
-            margin: 20px 0 15px 5px;
-            font-weight: 600;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
         }
 
-        .category-item {
-            background: var(--card-gray);
-            margin-bottom: 10px;
-            padding: 18px;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: 0.2s;
+        th {
+            text-align: left;
+            padding: 12px 15px;
+            color: var(--text-dim);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #222;
         }
 
-        .category-item.selected {
-            border-color: var(--neon-lime);
-            background: #1c1f10;
+        td {
+            padding: 14px 15px;
+            border-bottom: 1px solid #1a1a1a;
         }
 
-        .cat-name {
-            font-size: 15px;
+        /* Sorok variációi */
+        .row-me {
+            background: var(--recall-bg);
+            border-left: 3px solid var(--neon-lime);
+        }
+
+        .rank {
+            font-weight: 800;
+            color: var(--neon-lime);
+            width: 30px;
+        }
+
+        .name {
             font-weight: 500;
         }
 
-        /* Custom Checkbox / Circle */
-        .check-circle {
-            width: 22px;
-            height: 22px;
-            border: 2px solid #333;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
+        .bib {
+            color: var(--text-dim);
+            font-size: 11px;
+            margin-top: 2px;
         }
 
-        .category-item.selected .check-circle {
-            background: var(--neon-lime);
-            border-color: var(--neon-lime);
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            background: #222;
+            color: white;
         }
 
-        .category-item.selected .check-circle::after {
-            content: '✓';
-            color: black;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Alsó gomb szekció */
-        .footer-action {
-            padding: 25px;
-            background: linear-gradient(to top, black, transparent);
-        }
-
-        .save-btn {
+        .status-recall {
             background: var(--neon-lime);
             color: black;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            border: none;
-            font-weight: 800;
-            font-size: 15px;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(204, 255, 0, 0.2);
         }
 
-        .save-btn:active { transform: scale(0.98); }
+        /* Custom scrollbar */
+        .results-container::-webkit-scrollbar { width: 4px; }
+        .results-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <div class="phone">
         <div class="header">
-            <a href="#" class="back-btn">←</a>
-            <div class="event-mini-info">
-                <h2>The Open Swing</h2>
-                <p>Melyik kategóriában indulsz?</p>
-            </div>
+            <h2 class="category-title">Intermediate J&J</h2>
+            <p class="event-subtitle">The Open Swing • Prelims Results</p>
         </div>
 
-        <div class="category-container">
-            <div class="section-title">WSDC Jack & Jill</div>
-            
-            <div class="category-item selected" onclick="this.classList.toggle('selected')">
-                <span class="cat-name">Intermediate Jack & Jill</span>
-                <div class="check-circle"></div>
-            </div>
-
-            <div class="category-item" onclick="this.classList.toggle('selected')">
-                <span class="cat-name">Advanced Jack & Jill</span>
-                <div class="check-circle"></div>
-            </div>
-
-            <div class="section-title">Strictly & Others</div>
-
-            <div class="category-item" onclick="this.classList.toggle('selected')">
-                <span class="cat-name">Open Strictly</span>
-                <div class="check-circle"></div>
-            </div>
-
-            <div class="category-item" onclick="this.classList.toggle('selected')">
-                <span class="cat-name">Sophisticated Jack & Jill</span>
-                <div class="check-circle"></div>
-            </div>
-        </div>
-
-        <div class="footer-action">
-            <button class="save-btn">Mentés és értesítések kérése</button>
+        <div class="results-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Competitor</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="rank">1</td>
+                        <td>
+                            <div class="name">Kovács Balázs</div>
+                            <div class="bib">BIB #142</div>
+                        </td>
+                        <td><span class="status-badge status-recall">RECALL</span></td>
+                    </tr>
+                    <tr class="row-me">
+                        <td class="rank">2</td>
+                        <td>
+                            <div class="name">Lázár Luca (Te)</div>
+                            <div class="bib">BIB #201</div>
+                        </td>
+                        <td><span class="status-badge status-recall">RECALL</span></td>
+                    </tr>
+                    <tr>
+                        <td class="rank">3</td>
+                        <td>
+                            <div class="name">Nagy Péter</div>
+                            <div class="bib">BIB #115</div>
+                        </td>
+                        <td><span class="status-badge status-recall">RECALL</span></td>
+                    </tr>
+                    <tr>
+                        <td class="rank">4</td>
+                        <td>
+                            <div class="name">Szabó Anna</div>
+                            <div class="bib">BIB #189</div>
+                        </td>
+                        <td><span class="status-badge">ALT</span></td>
+                    </tr>
+                    <tr>
+                        <td class="rank">5</td>
+                        <td>
+                            <div class="name">Tóth Gábor</div>
+                            <div class="bib">BIB #167</div>
+                        </td>
+                        <td><span class="status-badge">-</span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
