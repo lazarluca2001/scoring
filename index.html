@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better Scoring - Event Card</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #ccff00; /* Neon zöld */
+            --text-main: #ffffff;
+            --text-secondary: #b0b0b0;
+            --button-secondary: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .event-card {
+            width: 350px;
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 180px;
+            background-image: url('https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&w=500');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .event-content {
+            padding: 20px;
+        }
+
+        .event-name {
+            color: var(--accent-color);
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0 0 12px 0;
+        }
+
+        .event-details {
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .detail-item span {
+            margin-right: 8px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-website {
+            background-color: var(--button-secondary);
+            color: var(--text-main);
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+
+        .icon {
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="event-card">
+        <div class="event-image"></div>
+        <div class="event-content">
+            <h2 class="event-name">Budapest Swing Weekend</h2>
+            
+            <div class="event-details">
+                <div class="detail-item"><span>📅</span> Oct 26-29, 2024</div>
+                <div class="detail-item"><span>📍</span> Budapest, Hungary</div>
+                <div class="detail-item"><span>🏆</span> Type: Registry Event</div>
+            </div>
+
+            <div class="button-container">
+                <button class="btn btn-website">
+                    <span class="icon">🔗</span> Website
+                </button>
+                <button class="btn btn-add">
+                    <span class="icon">❤</span> Add to My
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
