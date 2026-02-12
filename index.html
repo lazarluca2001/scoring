@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Results</title>
+    <title>Better Scoring - App Flow</title>
     <style>
         :root {
             --bg-dark: #000000;
             --card-gray: #161616;
             --neon-lime: #ccff00;
             --text-dim: #888;
-            --recall-bg: rgba(204, 255, 0, 0.1);
+            --btn-bg: #222;
+            --recall-bg: rgba(204, 255, 0, 0.1); /* Enyhe háttér a kiemelésre */
         }
 
         body {
             background-color: #0a0a0a;
             color: white;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             display: flex;
             justify-content: center;
+            gap: 40px; /* Távolság a telefonok között */
             padding: 40px;
             margin: 0;
         }
@@ -30,159 +32,306 @@
             border-radius: 44px;
             overflow: hidden;
             position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
             border: 1px solid #222;
             display: flex;
             flex-direction: column;
         }
 
-        /* Header */
-        .header {
-            padding: 50px 20px 10px;
-            border-bottom: 1px solid #222;
+        /* --- Global Header / Title --- */
+        .screen-header {
+            padding: 45px 25px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .category-title {
-            color: var(--neon-lime);
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .event-subtitle {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin: 5px 0;
-        }
-
-        /* Táblázat stílus */
-        .results-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px 15px;
-            color: var(--text-dim);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #222;
-        }
-
-        td {
-            padding: 14px 15px;
-            border-bottom: 1px solid #1a1a1a;
-        }
-
-        /* Sorok variációi */
-        .row-me {
-            background: var(--recall-bg);
-            border-left: 3px solid var(--neon-lime);
-        }
-
-        .rank {
-            font-weight: 800;
-            color: var(--neon-lime);
-            width: 30px;
-        }
-
-        .name {
-            font-weight: 500;
-        }
-
-        .bib {
-            color: var(--text-dim);
-            font-size: 11px;
-            margin-top: 2px;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 900;
-            background: #222;
+        .screen-header .back-btn {
+            font-size: 24px;
+            text-decoration: none;
             color: white;
         }
 
-        .status-recall {
-            background: var(--neon-lime);
-            color: black;
+        .screen-header h2 {
+            font-size: 18px;
+            margin: 0;
+            color: var(--neon-lime);
+        }
+        .screen-header p {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin: 2px 0 0;
         }
 
-        /* Custom scrollbar */
-        .results-container::-webkit-scrollbar { width: 4px; }
-        .results-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        /* --- 1. KEZDŐKÉPERNYŐ --- */
+        .home-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 35px;
+            box-sizing: border-box;
+        }
+
+        .header-section {
+            margin-top: 33%;
+            text-align: center;
+        }
+
+        .app-title {
+            color: var(--neon-lime);
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin: 0;
+        }
+
+        .nav-group {
+            margin-top: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-link {
+            background: var(--card-gray);
+            padding: 22px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            transition: transform 0.2s;
+        }
+
+        .nav-link:active { transform: scale(0.98); }
+
+        .profile-section {
+            margin-top: auto;
+            margin-bottom: 45px;
+        }
+
+        .profile-link {
+            display: block;
+            border: 1px solid #2a2a2a;
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        /* --- 2. Kategória Választó --- */
+        .category-container {
+            flex: 1;
+            padding: 0 20px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: white;
+            margin: 20px 0 15px 5px;
+            font-weight: 600;
+        }
+
+        .category-item {
+            background: var(--card-gray);
+            margin-bottom: 10px;
+            padding: 18px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+
+        .category-item.selected {
+            border-color: var(--neon-lime);
+            background: #1c1f10;
+        }
+
+        .cat-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .check-circle {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .category-item.selected .check-circle {
+            background: var(--neon-lime);
+            border-color: var(--neon-lime);
+        }
+
+        .category-item.selected .check-circle::after {
+            content: '✓';
+            color: black;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .footer-action {
+            padding: 25px;
+            background: linear-gradient(to top, black, transparent); /* Finom átmenet */
+        }
+
+        .save-btn {
+            background: var(--neon-lime);
+            color: black;
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(204, 255, 0, 0.2);
+        }
+
+        /* --- 3. TOVÁBBJUTÓK KÉPERNYŐ (RECALL LIST) --- */
+        .recall-list-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            gap: 15px;
+        }
+
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .column-title {
+            font-size: 14px;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .competitor-card {
+            background: var(--card-gray);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+
+        .competitor-card.me {
+            border-color: var(--neon-lime);
+            background: var(--recall-bg);
+            color: var(--neon-lime);
+        }
     </style>
 </head>
 <body>
 
     <div class="phone">
-        <div class="header">
-            <h2 class="category-title">Intermediate J&J</h2>
-            <p class="event-subtitle">The Open Swing • Prelims Results</p>
+        <div class="home-content">
+            <div class="header-section">
+                <h1 class="app-title">Better Scoring</h1>
+            </div>
+
+            <div class="nav-group">
+                <a href="#" class="nav-link">My events <span>→</span></a>
+                <a href="#" class="nav-link">All events <span>→</span></a>
+            </div>
+
+            <div class="profile-section">
+                <a href="#" class="profile-link">Settings / Profil</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone">
+        <div class="screen-header">
+            <a href="#" class="back-btn">←</a>
+            <div class="event-mini-info">
+                <h2>The Open Swing</h2>
+                <p>Melyik kategóriában indulsz?</p>
+            </div>
         </div>
 
-        <div class="results-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Competitor</th>
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="rank">1</td>
-                        <td>
-                            <div class="name">Kovács Balázs</div>
-                            <div class="bib">BIB #142</div>
-                        </td>
-                        <td><span class="status-badge status-recall">RECALL</span></td>
-                    </tr>
-                    <tr class="row-me">
-                        <td class="rank">2</td>
-                        <td>
-                            <div class="name">Lázár Luca (Te)</div>
-                            <div class="bib">BIB #201</div>
-                        </td>
-                        <td><span class="status-badge status-recall">RECALL</span></td>
-                    </tr>
-                    <tr>
-                        <td class="rank">3</td>
-                        <td>
-                            <div class="name">Nagy Péter</div>
-                            <div class="bib">BIB #115</div>
-                        </td>
-                        <td><span class="status-badge status-recall">RECALL</span></td>
-                    </tr>
-                    <tr>
-                        <td class="rank">4</td>
-                        <td>
-                            <div class="name">Szabó Anna</div>
-                            <div class="bib">BIB #189</div>
-                        </td>
-                        <td><span class="status-badge">ALT</span></td>
-                    </tr>
-                    <tr>
-                        <td class="rank">5</td>
-                        <td>
-                            <div class="name">Tóth Gábor</div>
-                            <div class="bib">BIB #167</div>
-                        </td>
-                        <td><span class="status-badge">-</span></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="category-container">
+            <div class="section-title">WSDC Jack & Jill</div>
+            
+            <div class="category-item selected" onclick="this.classList.toggle('selected')">
+                <span class="cat-name">Intermediate Jack & Jill</span>
+                <div class="check-circle"></div>
+            </div>
+
+            <div class="category-item" onclick="this.classList.toggle('selected')">
+                <span class="cat-name">Advanced Jack & Jill</span>
+                <div class="check-circle"></div>
+            </div>
+
+            <div class="section-title">Strictly & Others</div>
+
+            <div class="category-item" onclick="this.classList.toggle('selected')">
+                <span class="cat-name">Open Strictly</span>
+                <div class="check-circle"></div>
+            </div>
+
+            <div class="category-item" onclick="this.classList.toggle('selected')">
+                <span class="cat-name">Sophisticated Jack & Jill</span>
+                <div class="check-circle"></div>
+            </div>
+        </div>
+
+        <div class="footer-action">
+            <button class="save-btn">Mentés és értesítések kérése</button>
+        </div>
+    </div>
+
+    <div class="phone">
+        <div class="screen-header">
+            <a href="#" class="back-btn">←</a>
+            <div class="event-mini-info">
+                <h2>Intermediate J&J Recall</h2>
+                <p>The Open Swing • Leaders & Followers</p>
+            </div>
+        </div>
+
+        <div class="recall-list-container">
+            <div class="column">
+                <div class="column-title">Leaders</div>
+                <div class="competitor-card">Kovács Balázs</div>
+                <div class="competitor-card me">Lázár Luca (Te)</div>
+                <div class="competitor-card">Nagy Péter</div>
+                <div class="competitor-card">Kelemen Zsolt</div>
+                <div class="competitor-card">Oláh Dávid</div>
+                <div class="competitor-card">Farkas Richárd</div>
+                <div class="competitor-card">Horváth Máté</div>
+            </div>
+            <div class="column">
+                <div class="column-title">Followers</div>
+                <div class="competitor-card">Szabó Anna</div>
+                <div class="competitor-card">Tóth Eszter</div>
+                <div class="competitor-card">Kiss Viktória</div>
+                <div class="competitor-card">Varga Enikő</div>
+                <div class="competitor-card me">Lázár Luca (Te)</div>
+                <div class="competitor-card">Molnár Zsófia</div>
+                <div class="competitor-card">Simon Nóra</div>
+            </div>
         </div>
     </div>
 
