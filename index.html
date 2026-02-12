@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - App Flow with BIB</title>
+    <title>Better Scoring - Final App Flow</title>
     <style>
         :root {
             --bg-dark: #000000;
@@ -11,6 +11,7 @@
             --neon-lime: #ccff00;
             --text-dim: #888;
             --recall-bg: rgba(204, 255, 0, 0.1);
+            --table-border: #222;
         }
 
         body {
@@ -22,7 +23,7 @@
             gap: 30px;
             padding: 40px;
             margin: 0;
-            overflow-x: auto; /* Több telefon esetén görgethető legyen */
+            overflow-x: auto;
         }
 
         .phone {
@@ -38,94 +39,55 @@
             flex-direction: column;
         }
 
-        /* --- Header --- */
-        .screen-header {
-            padding: 45px 25px 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
+        /* --- Common Header --- */
+        .screen-header { padding: 45px 25px 15px; display: flex; align-items: center; gap: 15px; }
         .back-btn { font-size: 24px; text-decoration: none; color: white; cursor: pointer; }
         .screen-header h2 { font-size: 17px; margin: 0; color: var(--neon-lime); }
         .screen-header p { font-size: 11px; color: var(--text-dim); margin: 2px 0 0; }
 
-        /* --- 1. HOME SCREEN --- */
+        /* --- Home Screen --- */
         .home-content { padding: 0 35px; text-align: center; }
         .app-title { margin-top: 33%; color: var(--neon-lime); font-size: 34px; font-weight: 800; }
         .nav-group { margin-top: 80px; display: flex; flex-direction: column; gap: 12px; }
-        .nav-link { 
-            background: var(--card-gray); padding: 22px; border-radius: 18px; 
-            text-decoration: none; color: white; font-weight: 600; 
-            display: flex; justify-content: space-between; 
-        }
+        .nav-link { background: var(--card-gray); padding: 22px; border-radius: 18px; text-decoration: none; color: white; font-weight: 600; display: flex; justify-content: space-between; }
 
-        /* --- 2. CATEGORY SELECT --- */
+        /* --- Category Select --- */
         .category-container { flex: 1; padding: 0 20px; overflow-y: auto; }
-        .category-item { 
-            background: var(--card-gray); margin-bottom: 10px; padding: 18px; 
-            border-radius: 16px; display: flex; justify-content: space-between; align-items: center;
-        }
+        .category-item { background: var(--card-gray); margin-bottom: 10px; padding: 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
         .category-item.selected { border: 1px solid var(--neon-lime); background: #1c1f10; }
         .check-circle { width: 20px; height: 20px; border: 2px solid #333; border-radius: 50%; }
         .selected .check-circle { background: var(--neon-lime); border-color: var(--neon-lime); }
 
-        /* --- 3. RECALL LIST WITH BIB --- */
-        .recall-list-container {
-            flex: 1;
-            padding: 15px;
-            display: flex;
-            gap: 12px;
-            overflow-y: auto;
-        }
-
+        /* --- Recall List --- */
+        .recall-list-container { flex: 1; padding: 15px; display: flex; gap: 12px; overflow-y: auto; }
         .column { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .column-title { 
-            font-size: 12px; color: var(--text-dim); font-weight: 700; 
-            text-align: center; text-transform: uppercase; margin-bottom: 5px;
-        }
-
-        .competitor-card {
-            background: var(--card-gray);
-            padding: 12px 10px;
-            border-radius: 12px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            border: 1px solid transparent;
-        }
-
-        .bib-tag {
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--text-dim);
-            background: rgba(255,255,255,0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-            width: fit-content;
-            margin: 0 auto;
-        }
-
-        .comp-name {
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .competitor-card.me {
-            background: var(--recall-bg);
-            border-color: var(--neon-lime);
-        }
+        .column-title { font-size: 12px; color: var(--text-dim); font-weight: 700; text-align: center; text-transform: uppercase; margin-bottom: 5px; }
+        .competitor-card { background: var(--card-gray); padding: 12px 10px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; gap: 4px; border: 1px solid transparent; }
+        .bib-tag { font-size: 10px; font-weight: 800; color: var(--text-dim); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; width: fit-content; margin: 0 auto; }
+        .comp-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .competitor-card.me { background: var(--recall-bg); border-color: var(--neon-lime); }
         .competitor-card.me .comp-name { color: var(--neon-lime); }
         .competitor-card.me .bib-tag { background: var(--neon-lime); color: black; }
 
-        .footer-btn {
-            margin: 20px; padding: 18px; background: var(--neon-lime); 
-            border: none; border-radius: 16px; font-weight: 800; cursor: pointer;
-        }
+        /* --- Detailed Results & Table --- */
+        .stats-bar { background: #111; padding: 10px 20px; display: flex; justify-content: space-between; border-top: 1px solid var(--table-border); border-bottom: 1px solid var(--table-border); }
+        .stat-item { font-size: 11px; color: var(--text-dim); }
+        .tier-badge { color: var(--neon-lime); border: 1px solid var(--neon-lime); padding: 1px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
+        
+        .role-switcher { display: flex; background: var(--card-gray); margin: 15px 20px; padding: 4px; border-radius: 12px; }
+        .role-tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 700; border-radius: 10px; cursor: pointer; color: var(--text-dim); }
+        .role-tab.active { background: var(--neon-lime); color: black; }
+
+        .table-wrapper { flex: 1; overflow: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th, td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--table-border); font-size: 12px; }
+        th { background: #111; color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
+        
+        .sticky-col { position: sticky; left: 0; background: var(--bg-dark); z-index: 2; border-right: 1px solid var(--table-border); }
+        .score-yes { color: var(--neon-lime); font-weight: 800; }
+        .total-cell { font-weight: 800; background: rgba(204, 255, 0, 0.05); }
+        
+        .footer-btn { margin: 20px; padding: 18px; background: var(--neon-lime); border: none; border-radius: 16px; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -141,145 +103,69 @@
     </div>
 
     <div class="phone">
-        <div class="screen-header">
-            <span class="back-btn">←</span>
-            <div>
-                <h2>The Open Swing</h2>
-                <p>Válaszd ki a kategóriáidat</p>
-            </div>
-        </div>
+        <div class="screen-header"><span class="back-btn">←</span><div><h2>The Open Swing</h2><p>Válaszd ki a kategóriáidat</p></div></div>
         <div class="category-container">
-            <div class="category-item selected">
-                <span class="cat-name">Intermediate J&J</span>
-                <div class="check-circle"></div>
-            </div>
-            <div class="category-item">
-                <span class="cat-name">Advanced J&J</span>
-                <div class="check-circle"></div>
-            </div>
-            <div class="category-item">
-                <span class="cat-name">Open Strictly</span>
-                <div class="check-circle"></div>
-            </div>
+            <div class="category-item selected"><span class="cat-name">Intermediate J&J</span><div class="check-circle"></div></div>
+            <div class="category-item"><span class="cat-name">Advanced J&J</span><div class="check-circle"></div></div>
+            <div class="category-item"><span class="cat-name">Open Strictly</span><div class="check-circle"></div></div>
         </div>
         <button class="footer-btn">Mentés</button>
     </div>
 
     <div class="phone">
-        <div class="screen-header">
-            <span class="back-btn">←</span>
-            <div>
-                <h2>Intermediate J&J Recall</h2>
-                <p>The Open Swing • Továbbjutók</p>
-            </div>
-        </div>
-
+        <div class="screen-header"><span class="back-btn">←</span><div><h2>Intermediate J&J Recall</h2><p>The Open Swing • Továbbjutók</p></div></div>
         <div class="recall-list-container">
             <div class="column">
                 <div class="column-title">Leaders</div>
-                
-                <div class="competitor-card">
-                    <span class="bib-tag">#142</span>
-                    <span class="comp-name">Kovács Balázs</span>
-                </div>
-                
-                <div class="competitor-card me">
-                    <span class="bib-tag">#201</span>
-                    <span class="comp-name">Lázár Luca (Te)</span>
-                </div>
-
-                <div class="competitor-card">
-                    <span class="bib-tag">#115</span>
-                    <span class="comp-name">Nagy Péter</span>
-                </div>
-
-                <div class="competitor-card">
-                    <span class="bib-tag">#089</span>
-                    <span class="comp-name">Kelemen Zsolt</span>
-                </div>
+                <div class="competitor-card"><span class="bib-tag">#142</span><span class="comp-name">Kovács Balázs</span></div>
+                <div class="competitor-card me"><span class="bib-tag">#201</span><span class="comp-name">Lázár Luca (Te)</span></div>
+                <div class="competitor-card"><span class="bib-tag">#115</span><span class="comp-name">Nagy Péter</span></div>
             </div>
-
             <div class="column">
                 <div class="column-title">Followers</div>
-                
-                <div class="competitor-card">
-                    <span class="bib-tag">#305</span>
-                    <span class="comp-name">Szabó Anna</span>
-                </div>
-
-                <div class="competitor-card">
-                    <span class="bib-tag">#212</span>
-                    <span class="comp-name">Tóth Eszter</span>
-                </div>
-
-                <div class="competitor-card">
-                    <span class="bib-tag">#441</span>
-                    <span class="comp-name">Kiss Viktória</span>
-                </div>
-
-                <div class="competitor-card me">
-                    <span class="bib-tag">#201</span>
-                    <span class="comp-name">Lázár Luca (Te)</span>
-                </div>
+                <div class="competitor-card"><span class="bib-tag">#305</span><span class="comp-name">Szabó Anna</span></div>
+                <div class="competitor-card"><span class="bib-tag">#212</span><span class="comp-name">Tóth Eszter</span></div>
+                <div class="competitor-card me"><span class="bib-tag">#201</span><span class="comp-name">Lázár Luca (Te)</span></div>
             </div>
         </div>
     </div>
 
     <div class="phone">
-        <div class="screen-header">
-            <h2>Detailed Results</h2>
-            <p style="font-size: 12px; color: var(--text-dim);">Intermediate J&J • The Open</p>
-        </div>
-
+        <div class="screen-header"><h2>Detailed Results</h2><p style="font-size: 12px; color: var(--text-dim);">Intermediate J&J • The Open</p></div>
         <div class="stats-bar">
             <div class="stat-item">Indulók: <b>42</b></div>
             <div class="stat-item">Besorolás: <span class="tier-badge">Tier 3</span></div>
         </div>
-
         <div class="role-switcher">
             <div class="role-tab active">Leaders</div>
             <div class="role-tab">Followers</div>
         </div>
-
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
                         <th class="sticky-col">BIB</th>
-                        <th class="sticky-name">Name</th>
-                        <th>CS</th>
-                        <th>FS</th>
-                        <th>MD</th>
-                        <th>RS</th>
-                        <th>SQ</th>
-                        <th>CB</th>
+                        <th>Name</th>
+                        <th>CS</th><th>FS</th><th>MD</th><th>RS</th><th>SQ</th><th>CB</th>
                         <th class="total-cell">Σ</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="row-me">
                         <td class="sticky-col">201</td>
-                        <td class="sticky-name">Lázár Luca (Te)</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
+                        <td>Lázár Luca (Te)</td>
+                        <td class="score-yes">Y</td><td class="score-yes">Y</td><td class="score-yes">Y</td>
+                        <td class="score-yes">Y</td><td class="score-yes">Y</td><td class="score-yes">Y</td>
                         <td class="total-cell">6</td>
                     </tr>
                     <tr>
                         <td class="sticky-col">235</td>
-                        <td class="sticky-name">Yvonne W.</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td class="score-yes">Y</td>
-                        <td>-</td>
+                        <td>Yvonne W.</td>
+                        <td class="score-yes">Y</td><td class="score-yes">Y</td><td class="score-yes">Y</td>
+                        <td class="score-yes">Y</td><td class="score-yes">Y</td><td>-</td>
                         <td class="total-cell">5</td>
                     </tr>
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
