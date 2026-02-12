@@ -3,136 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Event Card</title>
+    <title>Better Scoring App Design</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --accent-color: #ccff00; /* Neon zöld */
+            --bg-color: #0f1012;
+            --card-bg: #1e2124;
+            --accent-neon: #ccff00;
             --text-main: #ffffff;
-            --text-secondary: #b0b0b0;
-            --button-secondary: #333333;
+            --text-dim: #a0a0a0;
+            --btn-dark: #2c2f33;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #000;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            align-items: flex-start;
+            gap: 40px;
+            padding: 40px;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        /* Mobil váz szimuláció */
+        .phone-mockup {
+            width: 360px;
+            height: 640px;
+            background-color: var(--bg-color);
+            border: 8px solid #222;
+            border-radius: 40px;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        /* --- 1. KEZDŐKÉPERNYŐ STÍLUS --- */
+        .home-screen {
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-header {
+            margin-bottom: 40px;
+        }
+
+        .app-name {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent-neon);
             margin: 0;
         }
 
-        .event-card {
-            width: 350px;
+        .welcome-text {
+            font-size: 16px;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu-btn {
             background-color: var(--card-bg);
+            padding: 25px 20px;
             border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+            border: 1px solid transparent;
         }
 
-        .event-card:hover {
-            transform: translateY(-5px);
+        .menu-btn:hover {
+            border-color: var(--accent-neon);
+            background-color: #25282c;
         }
 
-        .event-image {
-            width: 100%;
-            height: 180px;
-            background-image: url('https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&w=500');
-            background-size: cover;
-            background-position: center;
-            position: relative;
+        .menu-btn-content b {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
         }
 
-        .event-content {
+        .menu-btn-content span {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        /* --- 2. ALL EVENTS KÁRTYA STÍLUS --- */
+        .events-screen {
             padding: 20px;
         }
 
-        .event-name {
-            color: var(--accent-color);
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin: 0 0 12px 0;
-        }
-
-        .event-details {
+        .screen-title {
+            font-size: 20px;
             margin-bottom: 20px;
+            text-align: center;
         }
 
-        .detail-item {
+        .event-card {
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .event-img {
+            width: 100%;
+            height: 150px;
+            background: url('https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=400') center/cover;
+        }
+
+        .event-info {
+            padding: 20px;
+        }
+
+        .event-title {
+            color: var(--accent-neon);
+            font-size: 1.2rem;
+            margin: 0 0 10px 0;
+        }
+
+        .detail {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 6px;
+            gap: 8px;
         }
 
-        .detail-item span {
-            margin-right: 8px;
-        }
-
-        .button-container {
+        .card-buttons {
             display: flex;
             gap: 10px;
+            margin-top: 20px;
         }
 
         .btn {
             flex: 1;
             padding: 12px;
-            border: none;
             border-radius: 12px;
+            border: none;
             font-weight: bold;
+            font-size: 12px;
             cursor: pointer;
-            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.2s;
+            gap: 5px;
         }
 
-        .btn:active {
-            opacity: 0.8;
-        }
+        .btn-web { background-color: var(--btn-dark); color: white; }
+        .btn-add { background-color: var(--accent-neon); color: black; }
 
-        .btn-website {
-            background-color: var(--button-secondary);
-            color: var(--text-main);
-        }
-
-        .btn-add {
-            background-color: var(--accent-color);
-            color: #000;
-        }
-
-        .icon {
-            margin-right: 6px;
-        }
+        /* Görgősáv elrejtése */
+        .phone-mockup::-webkit-scrollbar { width: 0; }
     </style>
 </head>
 <body>
 
-    <div class="event-card">
-        <div class="event-image"></div>
-        <div class="event-content">
-            <h2 class="event-name">Budapest Swing Weekend</h2>
-            
-            <div class="event-details">
-                <div class="detail-item"><span>📅</span> Oct 26-29, 2024</div>
-                <div class="detail-item"><span>📍</span> Budapest, Hungary</div>
-                <div class="detail-item"><span>🏆</span> Type: Registry Event</div>
+    <div class="phone-mockup">
+        <div class="home-screen">
+            <div class="app-header">
+                <h1 class="app-name">Better Scoring</h1>
+                <p class="welcome-text">Hi! Ready to score?</p>
             </div>
 
-            <div class="button-container">
-                <button class="btn btn-website">
-                    <span class="icon">🔗</span> Website
-                </button>
-                <button class="btn btn-add">
-                    <span class="icon">❤</span> Add to My
-                </button>
+            <div class="menu-container">
+                <a href="#" class="menu-btn">
+                    <div class="menu-btn-content">
+                        <b>My events</b>
+                        <span>Track your own results</span>
+                    </div>
+                    <i>📅</i>
+                </a>
+                <a href="#" class="menu-btn">
+                    <div class="menu-btn-content">
+                        <b>All events</b>
+                        <span>Discover new competitions</span>
+                    </div>
+                    <i>🌎</i>
+                </a>
+                <a href="#" class="menu-btn" style="margin-top: 40px; opacity: 0.8;">
+                    <div class="menu-btn-content">
+                        <b>Settings / Profil</b>
+                    </div>
+                    <i>⚙️</i>
+                </a>
             </div>
         </div>
+    </div>
+
+    <div class="phone-mockup">
+        <div class="events-screen">
+            <h2 class="screen-title">All Events</h2>
+            
+            <div class="event-card">
+                <div class="event-img"></div>
+                <div class="event-info">
+                    <h3 class="event-title">The Open Swing</h3>
+                    <div class="detail">📅 Oct 26-29, 2024</div>
+                    <div class="detail">📍 Los Angeles, CA</div>
+                    <div class="detail">🏆 Registry Event</div>
+
+                    <div class="card-buttons">
+                        <button class="btn btn-web">🔗 Website</button>
+                        <button class="btn btn-add">❤️ Add to My</button>
+                    </div>
+                </div>
+            </div>
+            
+            </div>
     </div>
 
 </body>
