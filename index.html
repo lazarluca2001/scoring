@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Performance Profile</title>
+    <title>Better Scoring - WSDC Registry Profile</title>
     <style>
         :root {
             --bg-dark: #000000;
@@ -12,6 +12,11 @@
             --text-main: #ffffff;
             --text-dim: #777777;
             --border: #222222;
+            /* Divízió színek a kép alapján */
+            --div-new: #80d8ff;
+            --div-nov: #ea80fc;
+            --div-int: #ffd740;
+            --div-adv: #ff8a80;
         }
 
         body {
@@ -35,162 +40,187 @@
             flex-direction: column;
         }
 
-        /* --- 1. Grafikon Szekció --- */
-        .chart-container {
-            padding: 50px 20px 20px;
-            background: linear-gradient(to bottom, #1a1c10 0%, #000 100%);
-            text-align: center;
+        /* --- 1. Fejléc: Diagram --- */
+        .header-chart-area {
+            padding: 40px 20px 20px;
+            background: linear-gradient(to bottom, #111 0%, #000 100%);
         }
 
-        .chart-placeholder {
+        .chart-visual {
             width: 100%;
             height: 120px;
-            margin: 15px 0;
+            border-bottom: 1px solid #333;
+            border-left: 1px solid #333;
             position: relative;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            padding: 0 10px;
+            margin-bottom: 10px;
         }
 
-        /* Egyszerű vizuális grafikon szimuláció CSS-el */
-        .chart-bar { width: 12%; background: var(--neon-lime); border-radius: 4px 4px 0 0; opacity: 0.3; transition: 0.3s; }
-        .chart-bar.active { opacity: 1; box-shadow: 0 0 15px var(--neon-lime); }
+        /* Szimulált többvonalas grafikon */
+        .line-segment { position: absolute; height: 2px; border-radius: 2px; }
+        .line-new { width: 15%; bottom: 10%; left: 5%; background: var(--div-new); transform: rotate(-20deg); box-shadow: 0 0 8px var(--div-new); }
+        .line-nov { width: 25%; bottom: 35%; left: 20%; background: var(--div-nov); transform: rotate(-30deg); box-shadow: 0 0 8px var(--div-nov); }
+        .line-int { width: 40%; bottom: 65%; left: 45%; background: var(--div-int); transform: rotate(-15deg); box-shadow: 0 0 8px var(--div-int); }
 
-        .chart-title { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .current-points { font-size: 32px; font-weight: 900; margin: 5px 0; }
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+        .leg-item span { width: 8px; height: 8px; display: inline-block; border-radius: 2px; margin-right: 4px; }
 
-        /* --- 2. Statisztika Grid --- */
-        .stats-grid {
+        /* --- 2. Személyes adatok --- */
+        .user-info-bar {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-img { width: 60px; height: 60px; border-radius: 50%; background: #222; border: 2px solid var(--neon-lime); }
+        .user-text h1 { font-size: 18px; margin: 0; }
+        .id-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 6px;
+            width: fit-content;
+            cursor: pointer;
+        }
+        .id-badge span { font-size: 10px; color: var(--neon-lime); font-weight: 800; }
+
+        /* --- 3. Statisztikai kártyák --- */
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             padding: 0 20px 20px;
         }
+        .stat-card { background: var(--card-gray); padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+        .stat-card b { display: block; font-size: 16px; color: var(--neon-lime); }
+        .stat-card small { font-size: 8px; color: var(--text-dim); text-transform: uppercase; }
 
-        .stat-card {
+        /* --- 4. Eredmények listája (Prelim/Semi adatokkal) --- */
+        .registry-list {
+            flex: 1;
+            background: #080808;
+            padding: 20px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border);
+        }
+
+        .event-entry {
             background: var(--card-gray);
-            padding: 15px;
             border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
             border: 1px solid var(--border);
         }
 
-        .stat-card .val { display: block; font-size: 18px; font-weight: 800; color: var(--neon-lime); }
-        .stat-card .lab { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px; }
+        .entry-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .entry-title { font-size: 13px; font-weight: 700; color: var(--neon-lime); }
+        .entry-points { font-size: 12px; font-weight: 900; }
 
-        /* --- 3. Versenyeredmények (Scroll) --- */
-        .history-section {
-            flex: 1;
-            background: #080808;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            padding: 25px 20px;
-            overflow-y: auto;
-        }
-
-        .history-title { font-size: 14px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; }
-
-        .event-log {
+        .round-stats {
             display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #111;
+            gap: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #222;
         }
 
-        .event-date-box { min-width: 45px; text-align: left; }
-        .event-date-box .yr { display: block; font-size: 10px; color: var(--text-dim); }
-        .event-date-box .mt { font-size: 12px; font-weight: 700; }
-
-        .event-details { flex: 1; padding: 0 10px; }
-        .event-details .name { font-size: 13px; font-weight: 600; display: block; }
-        .event-details .cat { font-size: 10px; color: var(--text-dim); }
-
-        .event-result { text-align: right; }
-        .res-badge { background: #1a1a1a; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .res-badge.top { color: var(--neon-lime); border: 1px solid rgba(204, 255, 0, 0.3); }
-
-        ::-webkit-scrollbar { width: 0; }
+        .round-box { flex: 1; }
+        .round-box label { font-size: 8px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .vote-row { display: flex; gap: 3px; }
+        .v-dot { width: 12px; height: 12px; border-radius: 3px; background: #222; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .v-dot.yes { background: var(--neon-lime); color: black; }
     </style>
 </head>
 <body>
 
     <div class="phone">
-        <div class="chart-container">
-            <span class="chart-title">WSDC Pontok Fejlődése</span>
-            <div class="current-points">168</div>
-            <div class="chart-placeholder">
-                <div class="chart-bar" style="height: 30%;"></div>
-                <div class="chart-bar" style="height: 45%;"></div>
-                <div class="chart-bar" style="height: 40%;"></div>
-                <div class="chart-bar" style="height: 60%;"></div>
-                <div class="chart-bar" style="height: 85%;"></div>
-                <div class="chart-bar active" style="height: 100%;"></div>
+        <div class="header-chart-area">
+            <div class="chart-visual">
+                <div class="line-segment line-new"></div>
+                <div class="line-segment line-nov"></div>
+                <div class="line-segment line-int"></div>
             </div>
-            <p style="font-size: 11px; color: var(--text-dim);">Lázár Luca • Intermediate Level</p>
+            <div class="chart-legend">
+                <div class="leg-item"><span style="background: var(--div-new)"></span>NEW</div>
+                <div class="leg-item"><span style="background: var(--div-nov)"></span>NOV</div>
+                <div class="leg-item"><span style="background: var(--div-int)"></span>INT</div>
+            </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="val">1.28</span>
-                <span class="lab">Átlag szavazat</span>
-            </div>
-            <div class="stat-card">
-                <span class="val">84%</span>
-                <span class="lab">Prelim siker</span>
-            </div>
-            <div class="stat-box" style="grid-column: span 2; display: flex; gap: 10px;">
-                <div class="stat-card" style="flex: 1;">
-                    <span class="val">12</span>
-                    <span class="lab">Döntőbe jutás</span>
-                </div>
-                <div class="stat-card" style="flex: 1;">
-                    <span class="val">3</span>
-                    <span class="lab">Dobogós hely</span>
+        <div class="user-info-bar">
+            <div class="profile-img"></div>
+            <div class="user-text">
+                <h1>Lázár Luca</h1>
+                <div class="id-badge">
+                    <span>WSDC #16857</span>
+                    <svg width="10" height="10" fill="var(--neon-lime)" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="history-section">
-            <div class="history-title">
-                Versenyeredmények
-                <span style="color: var(--neon-lime); font-size: 11px;">Összes szűrése</span>
+        <div class="stats-row">
+            <div class="stat-card"><b>168</b><small>Össz Pont</small></div>
+            <div class="stat-card"><b>12</b><small>Döntő</small></div>
+            <div class="stat-card"><b>84%</b><small>Success</small></div>
+        </div>
+
+        <div class="registry-list">
+            <h3 style="font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 15px;">Versenyeredmények részletei</h3>
+
+            <div class="event-entry">
+                <div class="entry-top">
+                    <span class="entry-title">The Open Swing 2024</span>
+                    <span class="entry-points">+10 pts</span>
+                </div>
+                <div style="font-size: 10px; color: var(--text-dim);">Intermediate Jack & Jill • 2. Hely</div>
+                
+                <div class="round-stats">
+                    <div class="round-box">
+                        <label>Prelim</label>
+                        <div class="vote-row">
+                            <div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot">A</div>
+                        </div>
+                    </div>
+                    <div class="round-box">
+                        <label>Semi</label>
+                        <div class="vote-row">
+                            <div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot yes">Y</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="event-log">
-                <div class="event-date-box"><span class="yr">2024</span><span class="mt">OKT</span></div>
-                <div class="event-details">
-                    <span class="name">The Open Swing</span>
-                    <span class="cat">Intermediate J&J</span>
+            <div class="event-entry">
+                <div class="entry-top">
+                    <span class="entry-title">BudaFest 2024</span>
+                    <span class="entry-points">+0 pts</span>
                 </div>
-                <div class="event-result"><span class="res-badge top">2. Hely</span></div>
+                <div style="font-size: 10px; color: var(--text-dim);">Intermediate Jack & Jill • Semi</div>
+                
+                <div class="round-stats">
+                    <div class="round-box">
+                        <label>Prelim</label>
+                        <div class="vote-row">
+                            <div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot">N</div><div class="v-dot">N</div>
+                        </div>
+                    </div>
+                    <div class="round-box">
+                        <label>Semi</label>
+                        <span style="font-size: 9px; color: var(--text-dim);">Kiesett</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="event-log">
-                <div class="event-date-box"><span class="yr">2024</span><span class="mt">SZEP</span></div>
-                <div class="event-details">
-                    <span class="name">Swingtzerland</span>
-                    <span class="cat">Intermediate J&J</span>
-                </div>
-                <div class="event-result"><span class="res-badge">Döntő</span></div>
-            </div>
-
-            <div class="event-log">
-                <div class="event-date-box"><span class="yr">2024</span><span class="mt">AUG</span></div>
-                <div class="event-details">
-                    <span class="name">Budafest</span>
-                    <span class="cat">Intermediate Strictly</span>
-                </div>
-                <div class="event-result"><span class="res-badge top">1. Hely</span></div>
-            </div>
-            
-            <div class="event-log">
-                <div class="event-date-box"><span class="yr">2024</span><span class="mt">JÚN</span></div>
-                <div class="event-details">
-                    <span class="name">Liberty Swing</span>
-                    <span class="cat">Intermediate J&J</span>
-                </div>
-                <div class="event-result"><span class="res-badge">Semi</span></div>
-            </div>
         </div>
     </div>
 
