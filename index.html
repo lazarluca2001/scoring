@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Final Results Only</title>
+    <title>Better Scoring - Final Equal Partners</title>
     <style>
         :root {
             --bg-dark: #000000;
-            --card-gray: #161616;
+            --card-gray: #141414;
             --neon-lime: #ccff00;
             --text-dim: #888;
-            --table-border: #222;
+            --border: #262626;
         }
 
         body {
@@ -19,11 +19,10 @@
             font-family: 'Inter', -apple-system, sans-serif;
             display: flex;
             justify-content: center;
-            padding: 40px;
+            padding: 20px;
             margin: 0;
         }
 
-        /* Mobil váz */
         .phone {
             width: 360px;
             height: 740px;
@@ -31,208 +30,188 @@
             border-radius: 44px;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
             border: 1px solid #222;
             display: flex;
             flex-direction: column;
         }
 
-        /* Fejléc */
-        .screen-header {
-            padding: 45px 25px 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .screen-header { padding: 45px 20px 15px; }
+        .screen-header h2 { font-size: 18px; color: var(--neon-lime); margin: 0; }
+        .screen-header p { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
-        .back-btn { font-size: 24px; text-decoration: none; color: white; }
-        .screen-header h2 { font-size: 18px; margin: 0; color: var(--neon-lime); }
-        .screen-header p { font-size: 11px; color: var(--text-dim); margin: 2px 0 0; }
+        .results-scroll { flex: 1; overflow-y: auto; padding: 0 16px 20px; }
 
-        /* Fázisválasztó gombok */
-        .phase-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 0 20px 15px;
-        }
-
-        .phase-badge {
-            background: #222;
-            color: var(--text-dim);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .phase-badge.active {
-            background: var(--neon-lime);
-            color: black;
-        }
-
-        /* Statisztikai sáv */
-        .stats-bar {
-            background: #111;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid var(--table-border);
-            border-bottom: 1px solid var(--table-border);
-            margin-bottom: 15px;
-        }
-
-        .stat-item { font-size: 11px; color: var(--text-dim); }
-        .tier-badge { color: var(--neon-lime); border: 1px solid var(--neon-lime); padding: 1px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
-
-        /* Eredmény lista */
-        .results-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 20px 20px;
-        }
-
-        /* Páros kártya */
-        .score-card {
+        /* --- Egyenrangú páros kártya --- */
+        .pair-card {
             background: var(--card-gray);
-            border-radius: 20px;
-            padding: 16px;
-            border: 1px solid #222;
-            margin-bottom: 12px;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
         }
 
-        .score-card.me {
+        .pair-card.me {
             border-color: var(--neon-lime);
-            background: linear-gradient(145deg, #161616 0%, #1a1c10 100%);
+            box-shadow: inset 0 0 15px rgba(204, 255, 0, 0.05);
         }
 
+        /* Fejrész: Helyezés és nevek */
         .card-top {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 15px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
         }
 
-        .bib-tag {
+        .rank-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--neon-lime);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .partners-container {
+            flex: 1;
+            padding-right: 15px;
+        }
+
+        .partner-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .bib {
             font-size: 10px;
             font-weight: 800;
-            background: #222;
-            padding: 2px 6px;
-            border-radius: 4px;
             color: var(--text-dim);
-            margin-bottom: 4px;
-            display: inline-block;
+            background: #222;
+            padding: 2px 5px;
+            border-radius: 4px;
+            min-width: 35px;
+            text-align: center;
         }
 
-        .me .bib-tag { background: var(--neon-lime); color: black; }
+        .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #efefef;
+        }
 
-        .pair-names { display: flex; flex-direction: column; gap: 2px; }
-        .lead-name { font-size: 15px; font-weight: 700; color: white; }
-        .follow-name { font-size: 13px; color: var(--text-dim); }
-        .me .lead-name { color: var(--neon-lime); }
+        /* --- Bírói pontok átlátható rácsa --- */
+        .scores-section {
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
 
-        .final-rank-box { text-align: right; }
-        .rank-num { font-size: 24px; font-weight: 900; color: var(--neon-lime); line-height: 1; }
-        .rank-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; }
-
-        /* Bírói pontok 2 sorban (Grid) */
-        .judges-grid {
+        .scores-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 oszlop, ami 2 sorba törik ha több a bíró */
+            grid-template-columns: repeat(5, 1fr);
             gap: 6px;
         }
 
-        .judge-box {
-            background: #000;
-            padding: 6px 2px;
-            border-radius: 8px;
+        .judge-cell {
             text-align: center;
-            border: 1px solid #1a1a1a;
+            background: #000;
+            padding: 6px 0;
+            border-radius: 10px;
+            border: 1px solid var(--border);
         }
 
-        .j-id { display: block; font-size: 8px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 2px; }
-        .j-score { font-size: 13px; font-weight: 800; color: white; }
-        .top-score { color: var(--neon-lime); }
+        .j-id {
+            display: block;
+            font-size: 8px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
 
-        /* Scrollbar elrejtése */
-        .results-scroll::-webkit-scrollbar { width: 0; }
+        .j-val {
+            font-size: 14px;
+            font-weight: 800;
+            color: white;
+        }
+
+        /* Top 3 helyezés kiemelése */
+        .top-3 {
+            color: var(--neon-lime);
+        }
+
+        ::-webkit-scrollbar { width: 0; }
     </style>
 </head>
 <body>
 
     <div class="phone">
         <div class="screen-header">
-            <span class="back-btn">←</span>
-            <div>
-                <h2>Final Results</h2>
-                <p>Intermediate J&J • Detailed Scoring</p>
-            </div>
-        </div>
-
-        <div class="phase-tabs">
-            <div class="phase-badge">Prelim</div>
-            <div class="phase-badge">Semi</div>
-            <div class="phase-badge active">Final</div>
-        </div>
-
-        <div class="stats-bar">
-            <div class="stat-item">Döntősök: <b>12 pár</b></div>
-            <div class="stat-item">Besorolás: <span class="tier-badge">Tier 3</span></div>
+            <h2>Final Results</h2>
+            <p>Intermediate J&J • The Open Swing</p>
         </div>
 
         <div class="results-scroll">
             
-            <div class="score-card">
+            <div class="pair-card">
                 <div class="card-top">
-                    <div class="pair-names">
-                        <span class="bib-tag">#364</span>
-                        <span class="lead-name">Gábor Galgóczy</span>
-                        <span class="follow-name">Joanna Kozłowska</span>
+                    <div class="partners-container">
+                        <div class="partner-row">
+                            <span class="bib">#364</span>
+                            <span class="name">Gábor Galgóczy</span>
+                        </div>
+                        <div class="partner-row">
+                            <span class="bib">#512</span>
+                            <span class="name">Joanna Kozłowska</span>
+                        </div>
                     </div>
-                    <div class="final-rank-box">
-                        <div class="rank-num">1.</div>
-                        <div class="rank-label">Hely</div>
-                    </div>
+                    <div class="rank-circle">1</div>
                 </div>
-                <div class="judges-grid">
-                    <div class="judge-box"><span class="j-id">AL</span><span class="j-score">4</span></div>
-                    <div class="judge-box"><span class="j-id">CH</span><span class="j-score">10</span></div>
-                    <div class="judge-box"><span class="j-id">EM</span><span class="j-score">13</span></div>
-                    <div class="judge-box"><span class="j-id">FS</span><span class="j-score top-score">3</span></div>
-                    <div class="judge-box"><span class="j-id">IP</span><span class="j-score top-score">3</span></div>
-                    <div class="judge-box"><span class="j-id">KN</span><span class="j-score top-score">1</span></div>
-                    <div class="judge-box"><span class="j-id">LVL</span><span class="j-score top-score">1</span></div>
-                    <div class="judge-box"><span class="id">MV</span><span class="j-score top-score">1</span></div>
-                    <div class="judge-box"><span class="j-id">SQ</span><span class="j-score">2</span></div>
-                    <div class="judge-box"><span class="j-id">CB</span><span class="j-score">-</span></div>
+
+                <div class="scores-section">
+                    <div class="scores-grid">
+                        <div class="judge-cell"><span class="j-id">AL</span><span class="j-val">4</span></div>
+                        <div class="judge-cell"><span class="j-id">CH</span><span class="j-val">10</span></div>
+                        <div class="judge-cell"><span class="j-id">FS</span><span class="j-val top-3">1</span></div>
+                        <div class="judge-cell"><span class="j-id">IP</span><span class="j-val top-3">3</span></div>
+                        <div class="judge-cell"><span class="j-id">KN</span><span class="j-val top-3">1</span></div>
+                        <div class="judge-cell"><span class="j-id">LVL</span><span class="j-val top-3">1</span></div>
+                        <div class="judge-cell"><span class="j-id">MV</span><span class="j-val top-3">2</span></div>
+                        <div class="judge-cell"><span class="j-id">SQ</span><span class="j-val top-3">2</span></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="score-card me">
+            <div class="pair-card me">
                 <div class="card-top">
-                    <div class="pair-names">
-                        <span class="bib-tag">#331</span>
-                        <span class="lead-name">Ákos Endre Eszter</span>
-                        <span class="follow-name">Tetiana Kondrova</span>
+                    <div class="partners-container">
+                        <div class="partner-row">
+                            <span class="bib">#331</span>
+                            <span class="name">Ákos Endre Eszter</span>
+                        </div>
+                        <div class="partner-row">
+                            <span class="bib">#201</span>
+                            <span class="name">Tetiana Kondrova</span>
+                        </div>
                     </div>
-                    <div class="final-rank-box">
-                        <div class="rank-num">2.</div>
-                        <div class="rank-label">Hely</div>
-                    </div>
+                    <div class="rank-circle">2</div>
                 </div>
-                <div class="judges-grid">
-                    <div class="judge-box"><span class="j-id">AL</span><span class="j-score top-score">2</span></div>
-                    <div class="judge-box"><span class="j-id">CH</span><span class="j-score top-score">3</span></div>
-                    <div class="judge-box"><span class="j-id">EM</span><span class="j-score">6</span></div>
-                    <div class="judge-box"><span class="j-id">FS</span><span class="j-score">10</span></div>
-                    <div class="judge-box"><span class="j-id">IP</span><span class="j-score top-score">2</span></div>
-                    <div class="judge-box"><span class="j-id">KN</span><span class="j-score top-score">2</span></div>
-                    <div class="judge-box"><span class="j-id">LVL</span><span class="j-score">4</span></div>
-                    <div class="judge-box"><span class="j-id">MV</span><span class="j-score">9</span></div>
-                    <div class="judge-box"><span class="j-id">SQ</span><span class="j-score top-score">1</span></div>
-                    <div class="judge-box"><span class="j-id">CB</span><span class="j-score">-</span></div>
+
+                <div class="scores-section">
+                    <div class="scores-grid">
+                        <div class="judge-cell"><span class="j-id">AL</span><span class="j-val top-3">2</span></div>
+                        <div class="judge-cell"><span class="j-id">CH</span><span class="j-val top-3">3</span></div>
+                        <div class="judge-cell"><span class="j-id">FS</span><span class="j-val">8</span></div>
+                        <div class="judge-cell"><span class="j-id">IP</span><span class="j-val top-3">2</span></div>
+                        <div class="judge-cell"><span class="j-id">KN</span><span class="j-val top-3">2</span></div>
+                        <div class="judge-cell"><span class="j-id">LVL</span><span class="j-val">4</span></div>
+                        <div class="judge-cell"><span class="j-id">MV</span><span class="j-val">7</span></div>
+                        <div class="judge-cell"><span class="j-id">SQ</span><span class="j-val top-3">1</span></div>
+                    </div>
                 </div>
             </div>
 
