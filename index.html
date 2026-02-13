@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Detailed Results Card View</title>
+    <title>Better Scoring - Full App Design</title>
     <style>
         :root {
             --bg-dark: #000000;
@@ -19,13 +19,14 @@
             color: white;
             font-family: 'Inter', -apple-system, sans-serif;
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             flex-wrap: wrap; /* Új sorba tördelés, ha elfogy a hely */
-            gap: 30px;
+            gap: 40px;
             padding: 40px;
             margin: 0;
         }
 
+        /* Mobil váz szimuláció */
         .phone {
             flex: 0 0 360px;
             height: 740px;
@@ -39,257 +40,189 @@
             flex-direction: column;
         }
 
-        /* --- Header --- */
+        /* --- Fejlécek --- */
         .screen-header {
-            padding: 45px 20px 10px;
-        }
-
-        .screen-header h2 {
-            font-size: 18px;
-            color: var(--neon-lime);
-            margin: 0;
-        }
-
-        .screen-header p {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin: 4px 0 0;
-        }
-
-        /* --- Stats Bar (Indulók & Tier) --- */
-        .stats-bar {
-            background: #111;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid var(--table-border);
-            border-bottom: 1px solid var(--table-border);
-            margin-bottom: 10px;
-        }
-
-        .stat-item {
-            font-size: 11px;
-            color: var(--text-dim);
-        }
-
-        .stat-item b {
-            color: white;
-        }
-
-        .tier-badge {
-            color: var(--neon-lime);
-            border: 1px solid var(--neon-lime);
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-left: 5px;
-        }
-
-        /* --- Role Switcher --- */
-        .role-switcher {
-            display: flex;
-            background: var(--card-gray);
-            margin: 5px 20px 15px;
-            padding: 4px;
-            border-radius: 12px;
-        }
-
-        .role-tab {
-            flex: 1;
-            padding: 8px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            color: var(--text-dim);
-        }
-
-        .role-tab.active {
-            background: var(--neon-lime);
-            color: black;
-        }
-
-        /* --- Results Card View (Grid) --- */
-        .results-grid {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 20px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .score-card {
-            background: var(--card-gray);
-            border-radius: 20px;
-            padding: 16px;
-            border: 1px solid #222;
-            transition: transform 0.2s;
-        }
-
-        .score-card.me {
-            border-color: var(--neon-lime);
-            background: linear-gradient(145deg, #161616 0%, #1a1c10 100%);
-        }
-
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #222;
-        }
-
-        .comp-info {
+            padding: 45px 25px 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 15px;
         }
 
-        .bib-label {
-            font-size: 10px;
-            font-weight: 800;
-            background: #222;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: var(--text-dim);
-        }
+        .back-btn { font-size: 24px; text-decoration: none; color: white; cursor: pointer; }
+        .screen-header h2 { font-size: 18px; margin: 0; color: var(--neon-lime); }
+        .screen-header p { font-size: 11px; color: var(--text-dim); margin: 2px 0 0; }
 
-        .score-card.me .bib-label {
-            background: var(--neon-lime);
-            color: black;
-        }
+        /* --- 1. KEZDŐKÉPERNYŐ --- */
+        .home-content { height: 100%; display: flex; flex-direction: column; padding: 0 35px; }
+        .header-section { margin-top: 33%; text-align: center; }
+        .app-title { color: var(--neon-lime); font-size: 34px; font-weight: 800; letter-spacing: -1.5px; margin: 0; }
+        .nav-group { margin-top: 80px; display: flex; flex-direction: column; gap: 12px; }
+        .nav-link { background: var(--card-gray); padding: 22px; border-radius: 18px; text-decoration: none; color: white; font-weight: 600; display: flex; justify-content: space-between; }
+        .profile-section { margin-top: auto; margin-bottom: 45px; }
+        .profile-link { display: block; border: 1px solid #2a2a2a; padding: 16px; border-radius: 14px; text-align: center; color: var(--text-dim); text-decoration: none; font-size: 14px; }
 
-        .comp-name {
-            font-size: 14px;
-            font-weight: 600;
-        }
+        /* --- 2. ALL EVENTS KÁRTYA --- */
+        .event-card { background: var(--card-gray); margin: 20px; border-radius: 28px; position: relative; }
+        .image-container { width: 100%; height: 180px; background: url('https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=500') center/cover; border-radius: 28px 28px 0 0; position: relative; }
+        .heart-btn { position: absolute; bottom: -22px; right: 25px; width: 44px; height: 44px; background-color: #222; border: 2px solid var(--card-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .heart-btn.active { color: #ff3b30; }
+        .card-info { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .info-left h3 { color: var(--neon-lime); margin: 0 0 10px 0; font-size: 20px; }
+        .meta-data { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+        .website-btn { background: #222; color: white; border: 1px solid #333; padding: 10px 16px; border-radius: 10px; font-size: 12px; font-weight: 700; text-decoration: none; }
 
-        .total-score {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--neon-lime);
-        }
+        /* --- 3. KATEGÓRIA VÁLASZTÓ --- */
+        .category-item { background: var(--card-gray); margin: 0 20px 10px; padding: 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .category-item.selected { border: 1px solid var(--neon-lime); background: #1c1f10; }
+        .check-circle { width: 20px; height: 20px; border: 2px solid #333; border-radius: 50%; }
+        .selected .check-circle { background: var(--neon-lime); border-color: var(--neon-lime); display: flex; align-items: center; justify-content: center; }
+        .selected .check-circle::after { content: '✓'; color: black; font-size: 12px; font-weight: bold; }
+        .footer-btn { margin: auto 20px 30px; padding: 18px; background: var(--neon-lime); border: none; border-radius: 16px; font-weight: 800; cursor: pointer; }
 
-        /* Judges' Votes Grid */
-        .judges-votes {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
+        /* --- 4. RECALL LISTA (Két oszlop + BIB) --- */
+        .recall-container { flex: 1; padding: 15px; display: flex; gap: 12px; overflow-y: auto; }
+        .column { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .column-title { font-size: 12px; color: var(--text-dim); font-weight: 700; text-align: center; text-transform: uppercase; margin-bottom: 5px; }
+        .competitor-card { background: var(--card-gray); padding: 12px 10px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; gap: 4px; border: 1px solid transparent; }
+        .competitor-card.me { background: var(--recall-bg); border-color: var(--neon-lime); }
+        .bib-tag { font-size: 10px; font-weight: 800; color: var(--text-dim); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; width: fit-content; margin: 0 auto; }
+        .me .bib-tag { background: var(--neon-lime); color: black; }
+        .comp-name { font-size: 13px; font-weight: 600; }
+        .me .comp-name { color: var(--neon-lime); }
 
-        .judge-item {
-            background: #000;
-            padding: 6px 2px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #1a1a1a;
-        }
+        /* --- 5. DETAILED & FINAL SCORE CARDS --- */
+        .stats-bar { background: #111; padding: 10px 20px; display: flex; justify-content: space-between; border-top: 1px solid var(--table-border); border-bottom: 1px solid var(--table-border); margin-bottom: 10px; }
+        .tier-badge { color: var(--neon-lime); border: 1px solid var(--neon-lime); padding: 1px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
+        .role-switcher { display: flex; background: var(--card-gray); margin: 5px 20px 15px; padding: 4px; border-radius: 12px; }
+        .role-tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 700; border-radius: 10px; cursor: pointer; color: var(--text-dim); }
+        .role-tab.active { background: var(--neon-lime); color: black; }
+        .phase-tabs { display: flex; gap: 8px; padding: 0 20px 15px; }
+        .phase-badge { background: #222; color: var(--text-dim); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .phase-badge.active { background: var(--neon-lime); color: black; }
 
-        .j-name {
-            display: block;
-            font-size: 9px;
-            color: var(--text-dim);
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
+        .score-card { background: var(--card-gray); border-radius: 20px; padding: 16px; border: 1px solid #222; margin: 0 20px 12px; }
+        .score-card.me { border-color: var(--neon-lime); background: linear-gradient(145deg, #161616 0%, #1a1c10 100%); }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .final-rank { font-size: 22px; font-weight: 900; color: var(--neon-lime); }
+        .judges-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .judge-box { background: #000; padding: 6px 2px; border-radius: 8px; text-align: center; border: 1px solid #1a1a1a; }
+        .j-name { display: block; font-size: 8px; color: var(--text-dim); text-transform: uppercase; }
+        .j-val { font-size: 13px; font-weight: 800; color: #444; }
+        .j-val.voted { color: var(--neon-lime); }
+        .j-val.gold { color: var(--neon-lime); }
 
-        .j-mark {
-            font-size: 13px;
-            font-weight: 800;
-            color: #333; /* Alap (nincs szavazat) */
-        }
+        .pair-info { display: flex; flex-direction: column; gap: 2px; }
+        .partner { font-size: 11px; color: var(--text-dim); }
 
-        .j-mark.voted {
-            color: var(--neon-lime);
-        }
-
-        /* Görgetősáv elrejtése a tisztább képért */
-        .results-grid::-webkit-scrollbar { width: 0; }
+        /* Görgetősáv elrejtése */
+        ::-webkit-scrollbar { width: 0; }
     </style>
 </head>
 <body>
 
     <div class="phone">
-        <div class="screen-header">
-            <h2>Detailed Results</h2>
-            <p>Intermediate J&J • Judges' Analysis</p>
+        <div class="home-content">
+            <div class="header-section">
+                <h1 class="app-title">Better Scoring</h1>
+            </div>
+            <div class="nav-group">
+                <a href="#" class="nav-link">My events <span>→</span></a>
+                <a href="#" class="nav-link">All events <span>→</span></a>
+            </div>
+            <div class="profile-section">
+                <a href="#" class="profile-link">Settings / Profil</a>
+            </div>
         </div>
+    </div>
 
+    <div class="phone">
+        <div class="screen-header"><h2>All Events</h2></div>
+        <div class="event-card">
+            <div class="image-container">
+                <div class="heart-btn">♥</div>
+            </div>
+            <div class="card-info">
+                <div class="info-left">
+                    <h3>The Open Swing</h3>
+                    <div class="meta-data">📅 Oct 26-29, 2024<br>📍 Los Angeles, CA<br>🏆 Registry Event</div>
+                </div>
+                <div class="info-right"><a href="#" class="website-btn">Website</a></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone">
+        <div class="screen-header"><span class="back-btn">←</span><div><h2>The Open Swing</h2><p>Melyik kategóriában indulsz?</p></div></div>
+        <div style="flex: 1; overflow-y: auto; padding-top: 10px;">
+            <div class="category-item selected"><span class="cat-name">Intermediate J&J</span><div class="check-circle"></div></div>
+            <div class="category-item"><span class="cat-name">Advanced J&J</span><div class="check-circle"></div></div>
+            <div class="category-item"><span class="cat-name">Open Strictly</span><div class="check-circle"></div></div>
+        </div>
+        <button class="footer-btn">Mentés</button>
+    </div>
+
+    <div class="phone">
+        <div class="screen-header"><span class="back-btn">←</span><div><h2>Intermediate Recall</h2><p>The Open Swing • Leaders & Followers</p></div></div>
+        <div class="recall-container">
+            <div class="column">
+                <div class="column-title">Leaders</div>
+                <div class="competitor-card"><span class="bib-tag">#142</span><span class="comp-name">Kovács Balázs</span></div>
+                <div class="competitor-card me"><span class="bib-tag">#201</span><span class="comp-name">Lázár Luca (Te)</span></div>
+                <div class="competitor-card"><span class="bib-tag">#115</span><span class="comp-name">Nagy Péter</span></div>
+            </div>
+            <div class="column">
+                <div class="column-title">Followers</div>
+                <div class="competitor-card"><span class="bib-tag">#305</span><span class="comp-name">Szabó Anna</span></div>
+                <div class="competitor-card"><span class="bib-tag">#212</span><span class="comp-name">Tóth Eszter</span></div>
+                <div class="competitor-card me"><span class="bib-tag">#201</span><span class="comp-name">Lázár Luca (Te)</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone">
+        <div class="screen-header"><span class="back-btn">←</span><div><h2>Final Results</h2><p>Intermediate J&J • Judges' Analysis</p></div></div>
+        <div class="phase-tabs">
+            <div class="phase-badge">Prelim</div>
+            <div class="phase-badge">Semi</div>
+            <div class="phase-badge active">Final</div>
+        </div>
         <div class="stats-bar">
-            <div class="stat-item">Indulók: <b>42</b></div>
+            <div class="stat-item">Döntősök: <b>12 pár</b></div>
             <div class="stat-item">Besorolás: <span class="tier-badge">Tier 3</span></div>
         </div>
-
-        <div class="role-switcher">
-            <div class="role-tab active">Leaders</div>
-            <div class="role-tab">Followers</div>
-        </div>
-
-        <div class="results-grid">
-            
+        <div style="flex: 1; overflow-y: auto;">
+            <div class="score-card">
+                <div class="card-top">
+                    <div class="comp-info">
+                        <span class="bib-label">#364</span>
+                        <div class="pair-info"><span class="comp-name">Gábor Galgóczy</span><span class="partner">Joanna Kozłowska</span></div>
+                    </div>
+                    <div class="final-rank">1.</div>
+                </div>
+                <div class="judges-grid">
+                    <div class="judge-box"><span class="j-name">AL</span><span class="j-val">4</span></div>
+                    <div class="judge-box"><span class="j-name">CH</span><span class="j-val">10</span></div>
+                    <div class="judge-box"><span class="j-name">EM</span><span class="j-val">13</span></div>
+                    <div class="judge-box"><span class="j-name">FS</span><span class="j-val gold">3</span></div>
+                    <div class="judge-box"><span class="j-name">MV</span><span class="j-val gold">1</span></div>
+                </div>
+            </div>
             <div class="score-card me">
                 <div class="card-top">
                     <div class="comp-info">
-                        <span class="bib-label">#201</span>
-                        <span class="comp-name">Lázár Luca (Te)</span>
+                        <span class="bib-label">#331</span>
+                        <div class="pair-info"><span class="comp-name">Ákos Endre Eszter</span><span class="partner">Tetiana Kondrova</span></div>
                     </div>
-                    <div class="total-score">6</div>
+                    <div class="final-rank">2.</div>
                 </div>
-                <div class="judges-votes">
-                    <div class="judge-item"><span class="j-name">CS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">FS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">MD</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">RS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">SQ</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">CB</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">AK</span><span class="j-mark">-</span></div>
-                    <div class="judge-item"><span class="j-name">BT</span><span class="j-mark">-</span></div>
+                <div class="judges-grid">
+                    <div class="judge-box"><span class="j-name">AL</span><span class="j-val gold">2</span></div>
+                    <div class="judge-box"><span class="j-name">CH</span><span class="j-val gold">3</span></div>
+                    <div class="judge-box"><span class="j-name">IP</span><span class="j-val gold">2</span></div>
+                    <div class="judge-box"><span class="j-name">SQ</span><span class="j-val gold">1</span></div>
+                    <div class="judge-box"><span class="j-name">KN</span><span class="j-val gold">2</span></div>
                 </div>
             </div>
-
-            <div class="score-card">
-                <div class="card-top">
-                    <div class="comp-info">
-                        <span class="bib-label">#235</span>
-                        <span class="comp-name">Yvonne W.</span>
-                    </div>
-                    <div class="total-score">5</div>
-                </div>
-                <div class="judges-votes">
-                    <div class="judge-item"><span class="j-name">CS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">FS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">MD</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">RS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">SQ</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">CB</span><span class="j-mark">-</span></div>
-                    <div class="judge-item"><span class="j-name">AK</span><span class="j-mark">-</span></div>
-                    <div class="judge-item"><span class="j-name">BT</span><span class="j-mark">-</span></div>
-                </div>
-            </div>
-
-            <div class="score-card">
-                <div class="card-top">
-                    <div class="comp-info">
-                        <span class="bib-label">#188</span>
-                        <span class="comp-name">Nagy Péter</span>
-                    </div>
-                    <div class="total-score">4</div>
-                </div>
-                <div class="judges-votes">
-                    <div class="judge-item"><span class="j-name">CS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">FS</span><span class="j-mark">-</span></div>
-                    <div class="judge-item"><span class="j-name">MD</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">RS</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">SQ</span><span class="j-mark voted">Y</span></div>
-                    <div class="judge-item"><span class="j-name">CB</span><span class="j-mark">-</span></div>
-                    <div class="judge-item"><span class="j-name">AK</span><span class="j-mark">-</span></div>
-                    <div class="judge-item"><span class="j-name">BT</span><span class="j-mark">-</span></div>
-                </div>
-            </div>
-
         </div>
     </div>
 
