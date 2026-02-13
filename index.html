@@ -3,33 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - WSDC Registry Profile</title>
+    <title>Better Scoring - All Events</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet" />
     <style>
         :root {
             --bg-dark: #000000;
-            --card-gray: #111111;
+            --card-gray: #161616;
             --neon-lime: #ccff00;
-            --text-main: #ffffff;
-            --text-dim: #777777;
-            --border: #222222;
-            /* Divízió színek a kép alapján */
-            --div-new: #80d8ff;
-            --div-nov: #ea80fc;
-            --div-int: #ffd740;
-            --div-adv: #ff8a80;
+            --text-dim: #888;
         }
 
         body {
-            background-color: #050505;
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #0a0a0a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
             display: flex;
             justify-content: center;
-            padding: 20px;
-            margin: 0;
+            padding: 40px;
         }
 
-        .phone {
+        /* Mobil váz */
+        .app-container {
             width: 360px;
             height: 740px;
             background-color: var(--bg-dark);
@@ -40,188 +35,117 @@
             flex-direction: column;
         }
 
-        /* --- 1. Fejléc: Diagram --- */
-        .header-chart-area {
-            padding: 40px 20px 20px;
-            background: linear-gradient(to bottom, #111 0%, #000 100%);
+        /* Fejléc */
+        .header {
+            padding: 50px 25px 15px;
+            text-align: left;
         }
 
-        .chart-visual {
-            width: 100%;
-            height: 120px;
-            border-bottom: 1px solid #333;
-            border-left: 1px solid #333;
-            position: relative;
-            margin-bottom: 10px;
-        }
-
-        /* Szimulált többvonalas grafikon */
-        .line-segment { position: absolute; height: 2px; border-radius: 2px; }
-        .line-new { width: 15%; bottom: 10%; left: 5%; background: var(--div-new); transform: rotate(-20deg); box-shadow: 0 0 8px var(--div-new); }
-        .line-nov { width: 25%; bottom: 35%; left: 20%; background: var(--div-nov); transform: rotate(-30deg); box-shadow: 0 0 8px var(--div-nov); }
-        .line-int { width: 40%; bottom: 65%; left: 45%; background: var(--div-int); transform: rotate(-15deg); box-shadow: 0 0 8px var(--div-int); }
-
-        .chart-legend {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            font-size: 8px;
-            text-transform: uppercase;
+        .header h1 {
+            font-size: 24px;
             font-weight: 800;
-        }
-        .leg-item span { width: 8px; height: 8px; display: inline-block; border-radius: 2px; margin-right: 4px; }
-
-        /* --- 2. Személyes adatok --- */
-        .user-info-bar {
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            margin: 0;
+            color: white;
         }
 
-        .profile-img { width: 60px; height: 60px; border-radius: 50%; background: #222; border: 2px solid var(--neon-lime); }
-        .user-text h1 { font-size: 18px; margin: 0; }
-        .id-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 4px;
-            background: #1a1a1a;
-            padding: 4px 8px;
-            border-radius: 6px;
-            width: fit-content;
-            cursor: pointer;
-        }
-        .id-badge span { font-size: 10px; color: var(--neon-lime); font-weight: 800; }
-
-        /* --- 3. Statisztikai kártyák --- */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            padding: 0 20px 20px;
-        }
-        .stat-card { background: var(--card-gray); padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-        .stat-card b { display: block; font-size: 16px; color: var(--neon-lime); }
-        .stat-card small { font-size: 8px; color: var(--text-dim); text-transform: uppercase; }
-
-        /* --- 4. Eredmények listája (Prelim/Semi adatokkal) --- */
-        .registry-list {
-            flex: 1;
-            background: #080808;
-            padding: 20px;
-            overflow-y: auto;
-            border-top: 1px solid var(--border);
-        }
-
-        .event-entry {
+        /* Esemény kártya */
+        .event-card {
             background: var(--card-gray);
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
+            margin: 0 20px 20px;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid #222;
         }
 
-        .entry-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .entry-title { font-size: 13px; font-weight: 700; color: var(--neon-lime); }
-        .entry-points { font-size: 12px; font-weight: 900; }
+        .event-image {
+            width: 100%;
+            height: 140px;
+            background: #222 url('https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400') center/cover;
+        }
 
-        .round-stats {
+        .event-content {
+            padding: 20px;
             display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #222;
+            justify-content: space-between;
+            align-items: flex-end;
         }
 
-        .round-box { flex: 1; }
-        .round-box label { font-size: 8px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .vote-row { display: flex; gap: 3px; }
-        .v-dot { width: 12px; height: 12px; border-radius: 3px; background: #222; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
-        .v-dot.yes { background: var(--neon-lime); color: black; }
+        .event-details h3 {
+            font-size: 16px;
+            color: var(--neon-lime);
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+
+        .event-meta {
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .button-container {
+            text-align: right;
+        }
+
+        .website-btn {
+            display: inline-block;
+            background: #222;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid #333;
+            transition: 0.2s;
+        }
+
+        .website-btn:hover {
+            border-color: var(--neon-lime);
+        }
     </style>
 </head>
 <body>
 
-    <div class="phone">
-        <div class="header-chart-area">
-            <div class="chart-visual">
-                <div class="line-segment line-new"></div>
-                <div class="line-segment line-nov"></div>
-                <div class="line-segment line-int"></div>
-            </div>
-            <div class="chart-legend">
-                <div class="leg-item"><span style="background: var(--div-new)"></span>NEW</div>
-                <div class="leg-item"><span style="background: var(--div-nov)"></span>NOV</div>
-                <div class="leg-item"><span style="background: var(--div-int)"></span>INT</div>
-            </div>
-        </div>
+    <div class="app-container">
+        <header class="header">
+            <h1>All events</h1>
+        </header>
 
-        <div class="user-info-bar">
-            <div class="profile-img"></div>
-            <div class="user-text">
-                <h1>Lázár Luca</h1>
-                <div class="id-badge">
-                    <span>WSDC #16857</span>
-                    <svg width="10" height="10" fill="var(--neon-lime)" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="stats-row">
-            <div class="stat-card"><b>168</b><small>Össz Pont</small></div>
-            <div class="stat-card"><b>12</b><small>Döntő</small></div>
-            <div class="stat-card"><b>84%</b><small>Success</small></div>
-        </div>
-
-        <div class="registry-list">
-            <h3 style="font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 15px;">Versenyeredmények részletei</h3>
-
-            <div class="event-entry">
-                <div class="entry-top">
-                    <span class="entry-title">The Open Swing 2024</span>
-                    <span class="entry-points">+10 pts</span>
-                </div>
-                <div style="font-size: 10px; color: var(--text-dim);">Intermediate Jack & Jill • 2. Hely</div>
-                
-                <div class="round-stats">
-                    <div class="round-box">
-                        <label>Prelim</label>
-                        <div class="vote-row">
-                            <div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot">A</div>
-                        </div>
-                    </div>
-                    <div class="round-box">
-                        <label>Semi</label>
-                        <div class="vote-row">
-                            <div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot yes">Y</div>
-                        </div>
+        <article class="event-card">
+            <div class="event-image"></div>
+            <div class="event-content">
+                <div class="event-details">
+                    <h3>Budafest Open Swing<br>Championship 2026</h3>
+                    <div class="event-meta">
+                        📅 Jan 09-11, 2026
+                        📍 Budapest, HU
+                        🏆 Registry Event
                     </div>
                 </div>
-            </div>
-
-            <div class="event-entry">
-                <div class="entry-top">
-                    <span class="entry-title">BudaFest 2024</span>
-                    <span class="entry-points">+0 pts</span>
-                </div>
-                <div style="font-size: 10px; color: var(--text-dim);">Intermediate Jack & Jill • Semi</div>
-                
-                <div class="round-stats">
-                    <div class="round-box">
-                        <label>Prelim</label>
-                        <div class="vote-row">
-                            <div class="v-dot yes">Y</div><div class="v-dot yes">Y</div><div class="v-dot">N</div><div class="v-dot">N</div>
-                        </div>
-                    </div>
-                    <div class="round-box">
-                        <label>Semi</label>
-                        <span style="font-size: 9px; color: var(--text-dim);">Kiesett</span>
-                    </div>
+                <div class="button-container">
+                    <a href="#" class="website-btn">Website</a>
                 </div>
             </div>
+        </article>
 
-        </div>
+        <article class="event-card">
+            <div class="event-image"></div>
+            <div class="event-content">
+                <div class="event-details">
+                    <h3>Budafest Open Swing<br>Championship 2026</h3>
+                    <div class="event-meta">
+                        📅 Jan 09-11, 2026
+                        📍 Budapest, HU
+                        🏆 Registry Event
+                    </div>
+                </div>
+                <div class="button-container">
+                    <a href="#" class="website-btn">Website</a>
+                </div>
+            </div>
+        </article>
     </div>
 
 </body>
