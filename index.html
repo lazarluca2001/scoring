@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better Scoring - Final Equal Partners</title>
+    <title>Better Scoring - Final Minimalist</title>
     <style>
         :root {
             --bg-dark: #000000;
             --card-gray: #141414;
-            --neon-lime: #ccff00;
+            --neon-lime: #ccff00; /* Csak a logónál és a saját kártya szélén marad */
+            --text-main: #ffffff;
             --text-dim: #888;
             --border: #262626;
         }
 
         body {
             background-color: #0a0a0a;
-            color: white;
+            color: var(--text-main);
             font-family: 'Inter', -apple-system, sans-serif;
             display: flex;
             justify-content: center;
@@ -50,12 +51,11 @@
             border: 1px solid var(--border);
         }
 
+        /* Csak a keret jelzi, ha te vagy az */
         .pair-card.me {
             border-color: var(--neon-lime);
-            box-shadow: inset 0 0 15px rgba(204, 255, 0, 0.05);
         }
 
-        /* Fejrész: Helyezés és nevek */
         .card-top {
             display: flex;
             justify-content: space-between;
@@ -67,7 +67,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--neon-lime);
+            background: #ffffff; /* Fehér háttér a sötét szöveghez a helyezésnél */
             color: black;
             display: flex;
             align-items: center;
@@ -102,10 +102,10 @@
         .name {
             font-size: 14px;
             font-weight: 600;
-            color: #efefef;
+            color: var(--text-main);
         }
 
-        /* --- Bírói pontok átlátható rácsa --- */
+        /* --- Bírói pontok rácsa --- */
         .scores-section {
             border-top: 1px solid var(--border);
             padding-top: 12px;
@@ -136,12 +136,7 @@
         .j-val {
             font-size: 14px;
             font-weight: 800;
-            color: white;
-        }
-
-        /* Top 3 helyezés kiemelése */
-        .top-3 {
-            color: var(--neon-lime);
+            color: var(--text-main); /* Minden pontszám egységesen fehér */
         }
 
         ::-webkit-scrollbar { width: 0; }
@@ -176,12 +171,12 @@
                     <div class="scores-grid">
                         <div class="judge-cell"><span class="j-id">AL</span><span class="j-val">4</span></div>
                         <div class="judge-cell"><span class="j-id">CH</span><span class="j-val">10</span></div>
-                        <div class="judge-cell"><span class="j-id">FS</span><span class="j-val top-3">1</span></div>
-                        <div class="judge-cell"><span class="j-id">IP</span><span class="j-val top-3">3</span></div>
-                        <div class="judge-cell"><span class="j-id">KN</span><span class="j-val top-3">1</span></div>
-                        <div class="judge-cell"><span class="j-id">LVL</span><span class="j-val top-3">1</span></div>
-                        <div class="judge-cell"><span class="j-id">MV</span><span class="j-val top-3">2</span></div>
-                        <div class="judge-cell"><span class="j-id">SQ</span><span class="j-val top-3">2</span></div>
+                        <div class="judge-cell"><span class="j-id">FS</span><span class="j-val">1</span></div>
+                        <div class="judge-cell"><span class="j-id">IP</span><span class="j-val">3</span></div>
+                        <div class="judge-cell"><span class="j-id">KN</span><span class="j-val">1</span></div>
+                        <div class="judge-cell"><span class="j-id">LVL</span><span class="j-val">1</span></div>
+                        <div class="judge-cell"><span class="j-id">MV</span><span class="j-val">2</span></div>
+                        <div class="judge-cell"><span class="j-id">SQ</span><span class="j-val">2</span></div>
                     </div>
                 </div>
             </div>
@@ -203,14 +198,14 @@
 
                 <div class="scores-section">
                     <div class="scores-grid">
-                        <div class="judge-cell"><span class="j-id">AL</span><span class="j-val top-3">2</span></div>
-                        <div class="judge-cell"><span class="j-id">CH</span><span class="j-val top-3">3</span></div>
+                        <div class="judge-cell"><span class="j-id">AL</span><span class="j-val">2</span></div>
+                        <div class="judge-cell"><span class="j-id">CH</span><span class="j-val">3</span></div>
                         <div class="judge-cell"><span class="j-id">FS</span><span class="j-val">8</span></div>
-                        <div class="judge-cell"><span class="j-id">IP</span><span class="j-val top-3">2</span></div>
-                        <div class="judge-cell"><span class="j-id">KN</span><span class="j-val top-3">2</span></div>
+                        <div class="judge-cell"><span class="j-id">IP</span><span class="j-val">2</span></div>
+                        <div class="judge-cell"><span class="j-id">KN</span><span class="j-val">2</span></div>
                         <div class="judge-cell"><span class="j-id">LVL</span><span class="j-val">4</span></div>
                         <div class="judge-cell"><span class="j-id">MV</span><span class="j-val">7</span></div>
-                        <div class="judge-cell"><span class="j-id">SQ</span><span class="j-val top-3">1</span></div>
+                        <div class="judge-cell"><span class="j-id">SQ</span><span class="j-val">1</span></div>
                     </div>
                 </div>
             </div>
