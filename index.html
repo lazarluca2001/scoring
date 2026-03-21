@@ -3,187 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Táncos döntő rangsoroló - All-Stars</title>
+  <title>Döntő Rangsoroló</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     :root {
-      --bg: #0f1221;
+      --bg: #0b0e1a;
       --panel: #181c31;
-      --panel-2: #202644;
       --border: #31385f;
       --text: #f5f7ff;
-      --muted: #aeb6d6;
       --accent: #7c9cff;
-      --accent-hover: #668bff;
-      --shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
-      --radius: 18px;
+      --radius: 16px;
     }
 
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(180deg, #0b0e1a 0%, #12172a 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .page {
-      width: min(1100px, 92%);
-      margin: 32px auto 48px;
+    .container {
+      width: 100%;
+      max-width: 500px;
     }
 
     .header {
+      text-align: center;
       margin-bottom: 24px;
     }
 
     .header h1 {
-      margin: 0 0 8px;
-      font-size: 2rem;
-      background: linear-gradient(90deg, #fff, var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .panel {
-      background: rgba(24, 28, 49, 0.92);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      backdrop-filter: blur(8px);
-    }
-
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .panel-head h2 {
-      margin: 0;
-      font-size: 1.2rem;
-    }
-
-    .setup-form {
-      display: grid;
-      gap: 10px;
-    }
-
-    .setup-row {
-      display: grid;
-      grid-template-columns: 72px 110px 1fr;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .row-index {
-      font-weight: bold;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      outline: none;
-      font-size: 0.9rem;
-      transition: 0.2s;
-    }
-
-    input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.15);
-    }
-
-    .setup-actions {
-      margin-top: 16px;
-      display: flex;
-      gap: 10px;
-    }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: 0.2s ease;
-      font-weight: 600;
-    }
-
-    .primary-btn {
-      background: var(--accent);
-      color: white;
-      flex: 1;
-    }
-
-    .primary-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-
-    .secondary-btn {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .secondary-btn:hover {
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .hint {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 0.85rem;
-      font-style: italic;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: var(--accent);
     }
 
     .ranking-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      min-height: 300px;
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
     .rank-card {
       display: grid;
-      grid-template-columns: 50px 80px 1fr 30px;
+      grid-template-columns: 40px 70px 1fr 30px;
       align-items: center;
       gap: 12px;
-      background: var(--panel-2);
+      background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
+      border-radius: var(--radius);
+      padding: 16px;
       cursor: grab;
       user-select: none;
-      transition: background 0.2s;
-    }
-
-    .rank-card:hover {
-      background: #2a325a;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .rank-card:active {
@@ -191,24 +66,20 @@
     }
 
     .rank-card.dragging {
-      opacity: 0.4;
-      border: 1px dashed var(--accent);
+      opacity: 0.5;
+      transform: scale(0.95);
+      border-color: var(--accent);
     }
 
     .place-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      background: rgba(124, 156, 255, 0.16);
-      color: var(--accent);
       font-weight: 800;
+      color: var(--accent);
+      font-size: 1.1rem;
     }
 
     .pair-number {
-      font-weight: 700;
-      color: var(--muted);
+      color: #aeb6d6;
+      font-weight: 600;
     }
 
     .leader-name {
@@ -216,201 +87,146 @@
     }
 
     .drag-icon {
-      text-align: center;
       color: #4a5481;
+      text-align: right;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
     }
 
     .toast {
       position: fixed;
-      left: 50%;
       bottom: 30px;
-      transform: translateX(-50%) translateY(20px);
+      left: 50%;
+      transform: translateX(-50%);
       background: #2a325a;
-      border: 1px solid var(--accent);
-      color: white;
       padding: 10px 20px;
-      border-radius: 30px;
-      box-shadow: var(--shadow);
+      border-radius: 20px;
+      border: 1px solid var(--accent);
       opacity: 0;
-      transition: 0.3s ease;
-      z-index: 100;
+      transition: 0.3s;
+      pointer-events: none;
     }
 
     .toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 850px) {
-      .container { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <div class="page">
-    <header class="header">
-      <h1>All-Stars Döntő Rangsoroló</h1>
-      <p>Állítsd be a végső sorrendet a nevek áthúzásával.</p>
-    </header>
-
-    <main class="container">
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Résztvevők</h2>
-          <button id="fillDemoBtn" class="secondary-btn">Alaphelyzet</button>
-        </div>
-        <div id="setupForm" class="setup-form"></div>
-        <div class="setup-actions">
-          <button id="generateBtn" class="primary-btn">Lista frissítése</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Végeredmény</h2>
-          <div style="display: flex; gap: 8px;">
-            <button id="copyBtn" class="primary-btn">Másolás</button>
-          </div>
-        </div>
-        <p class="hint">Fogd meg és húzd a sorokat a helyezés módosításához.</p>
-        <div id="rankingList" class="ranking-list"></div>
-      </section>
-    </main>
+<div class="container">
+  <div class="header">
+    <h1>All-Stars Döntő</h1>
+    <p style="color: #aeb6d6; font-size: 0.9rem;">Húzd a neveket a sorrend beállításához!</p>
   </div>
 
-  <script>
-    const PAIR_COUNT = 10;
-    const setupForm = document.getElementById("setupForm");
-    const generateBtn = document.getElementById("generateBtn");
-    const rankingList = document.getElementById("rankingList");
-    const copyBtn = document.getElementById("copyBtn");
-    const fillDemoBtn = document.getElementById("fillDemoBtn");
+  <div id="rankingList" class="ranking-list"></div>
 
-    let rankingData = [];
-    let draggedItemId = null;
+  <div class="actions">
+    <button id="copyBtn">Eredmény másolása</button>
+  </div>
+</div>
 
-    // Hivatalos adatok a beküldött kép alapján
-    const officialFinalists = [
-      ["#249", "Rafal Grzelak"],
-      ["#359", "Raphael Ettedgui"],
-      ["#389", "Andreas Danielsson"],
-      ["#392", "Damian Gruszczyński"],
-      ["#396", "Stanley Seguy"],
-      ["#400", "Florian Hamm"],
-      ["#430", "Allan Thivoz"],
-      ["#443", "Julien Bec"],
-      ["#860", "Florian Simon"],
-      ["#876", "Joshua Schubert"]
-    ];
+<script>
+  // Adatok a kép alapján
+  let contestants = [
+    { num: "#249", name: "Rafal Grzelak" },
+    { num: "#359", name: "Raphael Ettedgui" },
+    { num: "#389", name: "Andreas Danielsson" },
+    { num: "#392", name: "Damian Gruszczyński" },
+    { num: "#396", name: "Stanley Seguy" },
+    { num: "#400", name: "Florian Hamm" },
+    { num: "#430", name: "Allan Thivoz" },
+    { num: "#443", name: "Julien Bec" },
+    { num: "#860", name: "Florian Simon" },
+    { num: "#876", name: "Joshua Schubert" }
+  ];
 
-    function init() {
-      setupForm.innerHTML = "";
-      for (let i = 1; i <= PAIR_COUNT; i++) {
-        const row = document.createElement("div");
-        row.className = "setup-row";
-        row.innerHTML = `
-          <div class="row-index">${i}.</div>
-          <input type="text" id="number-${i}" placeholder="Rajtszám">
-          <input type="text" id="leader-${i}" placeholder="Leader neve">
-        `;
-        setupForm.appendChild(row);
-      }
-      fillWithOfficialData();
-      updateRanking();
-    }
+  const listElement = document.getElementById('rankingList');
 
-    function fillWithOfficialData() {
-      officialFinalists.forEach((data, index) => {
-        const i = index + 1;
-        document.getElementById(`number-${i}`).value = data[0];
-        document.getElementById(`leader-${i}`).value = data[1];
-      });
-    }
+  function render() {
+    listElement.innerHTML = '';
+    contestants.forEach((person, index) => {
+      const card = document.createElement('div');
+      card.className = 'rank-card';
+      card.draggable = true;
+      card.dataset.index = index;
 
-    function updateRanking() {
-      rankingData = [];
-      for (let i = 1; i <= PAIR_COUNT; i++) {
-        const num = document.getElementById(`number-${i}`).value.trim();
-        const leader = document.getElementById(`leader-${i}`).value.trim();
-        rankingData.push({
-          id: 'item-' + i,
-          number: num || `#${i}`,
-          leader: leader || `Versenyző ${i}`
-        });
-      }
-      render();
-    }
+      card.innerHTML = `
+        <div class="place-badge">${index + 1}.</div>
+        <div class="pair-number">${person.num}</div>
+        <div class="leader-name">${person.name}</div>
+        <div class="drag-icon">☰</div>
+      `;
 
-    function render() {
-      rankingList.innerHTML = "";
-      rankingData.forEach((item, index) => {
-        const card = document.createElement("div");
-        card.className = "rank-card";
-        card.draggable = true;
-        card.dataset.id = item.id;
-        card.innerHTML = `
-          <div class="place-badge">${index + 1}</div>
-          <div class="pair-number">${item.number}</div>
-          <div class="leader-name">${item.leader}</div>
-          <div class="drag-icon">☰</div>
-        `;
+      card.addEventListener('dragstart', handleDragStart);
+      card.addEventListener('dragover', handleDragOver);
+      card.addEventListener('drop', handleDrop);
+      card.addEventListener('dragend', handleDragEnd);
 
-        card.addEventListener("dragstart", (e) => {
-          draggedItemId = item.id;
-          setTimeout(() => card.classList.add("dragging"), 0);
-        });
-
-        card.addEventListener("dragend", () => card.classList.remove("dragging"));
-
-        card.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          const draggingElement = document.querySelector(".dragging");
-          const currentElement = card;
-          const isAfter = e.clientY > currentElement.getBoundingClientRect().top + currentElement.offsetHeight / 2;
-          
-          if (draggingElement !== currentElement) {
-            const fromIndex = rankingData.findIndex(i => i.id === draggedItemId);
-            let toIndex = rankingData.findIndex(i => i.id === item.id);
-            
-            const [movedItem] = rankingData.splice(fromIndex, 1);
-            rankingData.splice(toIndex, 0, movedItem);
-            render();
-          }
-        });
-
-        rankingList.appendChild(card);
-      });
-    }
-
-    copyBtn.addEventListener("click", async () => {
-      const text = rankingData.map((item, index) => `${index + 1}. hely: ${item.number} - ${item.leader}`).join("\n");
-      await navigator.clipboard.writeText(text);
-      showToast("Eredmények másolva!");
+      listElement.appendChild(card);
     });
+  }
 
-    fillDemoBtn.addEventListener("click", () => {
-      fillWithOfficialData();
-      updateRanking();
-      showToast("Adatok visszaállítva.");
-    });
+  let draggedIdx = null;
 
-    generateBtn.addEventListener("click", updateRanking);
+  function handleDragStart(e) {
+    draggedIdx = this.dataset.index;
+    this.classList.add('dragging');
+  }
 
-    function showToast(msg) {
-      let t = document.getElementById("toast");
-      if(!t) {
-        t = document.createElement("div");
-        t.id = "toast";
-        t.className = "toast";
-        document.body.appendChild(t);
-      }
-      t.textContent = msg;
-      t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2000);
-    }
+  function handleDragOver(e) {
+    e.preventDefault();
+  }
 
-    init();
-  </script>
+  function handleDrop(e) {
+    const targetIdx = this.dataset.index;
+    if (draggedIdx === null || draggedIdx === targetIdx) return;
+
+    const movedItem = contestants.splice(draggedIdx, 1)[0];
+    contestants.splice(targetIdx, 0, movedItem);
+    
+    render();
+  }
+
+  function handleDragEnd() {
+    this.classList.remove('dragging');
+    draggedIdx = null;
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const text = contestants.map((c, i) => `${i + 1}. hely: ${c.num} - ${c.name}`).join('\n');
+    await navigator.clipboard.writeText(text);
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast show';
+    toast.textContent = 'Eredmények a vágólapon!';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  });
+
+  render();
+</script>
+
 </body>
 </html>
