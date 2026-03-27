@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Final Judge Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4">
+  <div class="max-w-5xl mx-auto space-y-4">
+
+    <div class="bg-slate-800 p-5 rounded-2xl shadow-xl border border-slate-700 space-y-4">
+      <h1 class="text-xl font-bold">Final Judge Panel</h1>
+
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm mb-1">Esemény</label>
+          <select id="event-select" class="w-full p-3 bg-slate-700 rounded-xl border-none outline-none"></select>
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1">Final kategória</label>
+          <select id="category-select" class="w-full p-3 bg-slate-700 rounded-xl border-none outline-none"></select>
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1">Bíró neve</label>
+          <input id="judge-name" type="text" placeholder="pl. Luca"
+                 class="w-full p-3 bg-slate-700 rounded-xl border-none outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1">Dance label / megjegyzés</label>
+          <input id="dance-label" type="text" placeholder="pl. Song 1 / Draw 2"
+                 class="w-full p-3 bg-slate-700 rounded-xl border-none outline-none" />
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button onclick="loadEvents()" class="bg-slate-600 px-4 py-2 rounded-xl font-semibold">Események frissítése</button>
+        <button onclick="loadCategories()" class="bg-slate-600 px-4 py-2 rounded-xl font-semibold">Kategóriák frissítése</button>
+        <button onclick="loadFinalEntries()" class="bg-blue-600 px-4 py-2 rounded-xl font-semibold">Final betöltése</button>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <input id="include-alternates" type="checkbox" class="scale-125">
+        <label for="include-alternates" class="text-sm">Alternates is jöjjenek be</label>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 p-5 rounded-2xl shadow-xl border border-slate-700 space-y-4">
+      <h2 class="text-lg font-bold">Párosítás módja</h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <label class="flex items-center gap-3 bg-slate-700 p-4 rounded-xl cursor-pointer">
+          <input type="radio" name="pairing-mode" value="rotation" checked onchange="switchMode()" />
+          <span>1. Forgatok X embert a followereken</span>
+        </label>
+
+        <label class="flex items-center gap-3 bg-slate-700 p-4 rounded-xl cursor-pointer">
+          <input type="radio" name="pairing-mode" value="manual" onchange="switchMode()" />
+          <span>2. Beírom a follower rajtszámát a leader mellé</span>
+        </label>
+      </div>
+
+      <div id="rotation-box" class="bg-slate-700 p-4 rounded-xl space-y-3">
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="block text-sm mb-1">Shift X</label>
+            <input id="rotation-shift" type="number" value="0"
+                   class="w-32 p-3 bg-slate-900 rounded-xl border border-slate-600 outline-none" />
+          </div>
+
+          <button onclick="applyRotation()" class="bg-blue-600 px-4 py-3 rounded-xl font-semibold">
+            Forgatás alkalmazása
+          </button>
+        </div>
+
+        <p class="text-sm text-slate-300">
+          A followerek sorrendjét az aktuális listán körbeforgatja X hellyel.
+        </p>
+      </div>
+
+      <div id="manual-box" class="hidden bg-slate-700 p-4 rounded-xl space-y-3">
+        <p class="text-sm text-slate-300">
+          Soronként írd be a follower bibet. Ezt pontozás közben is szabadon módosíthatod.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left border-b border-slate-600">
+                <th class="py-2">Leader Bib</th>
+                <th class="py-2">Leader</th>
+                <th class="py-2">Follower Bib</th>
+                <th class="py-2">Follower</th>
+              </tr>
+            </thead>
+            <tbody id="manual-pairing-body"></tbody>
+          </table>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="applyManualPairing()" class="bg-blue-600 px-4 py-3 rounded-xl font-semibold">
+            Kézi párosítás frissítése
+          </button>
+          <button onclick="clearManualInputs()" class="bg-slate-600 px-4 py-3 rounded-xl font-semibold">
+            Törlés
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 p-5 rounded-2xl shadow-xl border border-slate-700 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold">Aktuális párok és rangsor</h2>
+        <span id="pair-count" class="text-sm text-slate-300">0 pár</span>
+      </div>
+
+      <p class="text-sm text-slate-300">
+        Fogd meg és húzd a párokat a kívánt sorrendbe. A lista teteje az 1. hely.
+      </p>
+
+      <ul id="ranking-list" class="space-y-3"></ul>
+
+      <button id="save-btn"
+              onclick="submitFinalScores()"
+              class="w-full bg-green-600 py-4 rounded-2xl font-black text-lg shadow-2xl active:scale-95 transition-all uppercase tracking-widest">
+        Mentés a táblázatba
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "IDE_JON_A_WEBAPP_URL";
+
+    let currentEvent = null;
+    let currentCategory = null;
+    let leaders = [];
+    let followers = [];
+    let currentPairs = [];
+    let rankingSortable = null;
+
+    async function apiGet(params) {
+      const query = new URLSearchParams(params).toString();
+      const res = await fetch(`${SCRIPT_URL}?${query}`);
+      return await res.json();
+    }
+
+    async function loadEvents() {
+      const data = await apiGet({ action: "list_events" });
+      const select = document.getElementById("event-select");
+      select.innerHTML = data.map(e => `
+        <option value="${escapeHtml(e.fileId)}">${escapeHtml(e.fileName)}</option>
+      `).join("");
+
+      if (data.length) {
+        currentEvent = data[0].fileId;
+        await loadCategories();
+      }
+    }
+
+    async function loadCategories() {
+      const fileId = document.getElementById("event-select").value;
+      if (!fileId) return;
+
+      currentEvent = fileId;
+
+      const data = await apiGet({
+        action: "list_final_categories",
+        fileId
+      });
+
+      const select = document.getElementById("category-select");
+      select.innerHTML = data.map(c => `
+        <option value="${escapeHtml(c.sheetName)}">${escapeHtml(c.sheetName)}</option>
+      `).join("");
+    }
+
+    async function loadFinalEntries() {
+      const fileId = document.getElementById("event-select").value;
+      const sheetName = document.getElementById("category-select").value;
+      const includeAlternates = document.getElementById("include-alternates").checked ? "1" : "0";
+
+      if (!fileId || !sheetName) {
+        alert("Válassz eseményt és kategóriát.");
+        return;
+      }
+
+      currentEvent = fileId;
+      currentCategory = sheetName;
+
+      const data = await apiGet({
+        action: "get_final_entries",
+        fileId,
+        sheetName,
+        includeAlternates
+      });
+
+      leaders = data.leaders || [];
+      followers = data.followers || [];
+
+      buildManualTable();
+      applyRotation(0);
+    }
+
+    function switchMode() {
+      const mode = getPairingMode();
+
+      document.getElementById("rotation-box").classList.toggle("hidden", mode !== "rotation");
+      document.getElementById("manual-box").classList.toggle("hidden", mode !== "manual");
+
+      if (mode === "rotation") {
+        applyRotation();
+      } else {
+        buildManualTable();
+        applyManualPairing();
+      }
+    }
+
+    function getPairingMode() {
+      return document.querySelector('input[name="pairing-mode"]:checked').value;
+    }
+
+    function applyRotation(forcedShift = null) {
+      if (!leaders.length || !followers.length) {
+        alert("Előbb töltsd be a final listát.");
+        return;
+      }
+
+      const shiftInput = document.getElementById("rotation-shift");
+      const shift = forcedShift !== null ? Number(forcedShift) : Number(shiftInput.value || 0);
+
+      if (forcedShift !== null) {
+        shiftInput.value = shift;
+      }
+
+      const rotatedFollowers = rotateArray(followers, shift);
+
+      currentPairs = leaders.map((leader, index) => {
+        const follower = rotatedFollowers[index % rotatedFollowers.length] || {};
+        return {
+          leaderBib: leader.bib,
+          leaderName: leader.name,
+          followerBib: follower.bib || "",
+          followerName: follower.name || "",
+          pos: leader.pos || ""
+        };
+      });
+
+      renderRankingList();
+    }
+
+    function buildManualTable() {
+      const tbody = document.getElementById("manual-pairing-body");
+
+      tbody.innerHTML = leaders.map((leader, index) => `
+        <tr class="border-b border-slate-600">
+          <td class="py-2 pr-2 font-bold">#${escapeHtml(leader.bib)}</td>
+          <td class="py-2 pr-2">${escapeHtml(leader.name)}</td>
+          <td class="py-2 pr-2">
+            <input
+              type="text"
+              data-row="${index}"
+              class="manual-follower-input w-28 p-2 bg-slate-900 border border-slate-600 rounded"
+              placeholder="pl. 137"
+              oninput="updateManualFollowerName(${index})"
+            />
+          </td>
+          <td class="py-2 pr-2">
+            <span id="manual-follower-name-${index}" class="text-blue-300">—</span>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function updateManualFollowerName(index) {
+      const input = document.querySelector(`.manual-follower-input[data-row="${index}"]`);
+      const value = (input.value || "").trim().replace(/^#/, "");
+      const follower = followers.find(f => String(f.bib) === value);
+
+      const label = document.getElementById(`manual-follower-name-${index}`);
+      label.textContent = follower ? follower.name : "Nincs ilyen bib";
+      label.className = follower ? "text-blue-300" : "text-red-400";
+    }
+
+    function applyManualPairing() {
+      if (!leaders.length || !followers.length) {
+        alert("Előbb töltsd be a final listát.");
+        return;
+      }
+
+      currentPairs = leaders.map((leader, index) => {
+        const input = document.querySelector(`.manual-follower-input[data-row="${index}"]`);
+        const bib = String((input?.value || "")).trim().replace(/^#/, "");
+        const follower = followers.find(f => String(f.bib) === bib);
+
+        return {
+          leaderBib: leader.bib,
+          leaderName: leader.name,
+          followerBib: follower ? follower.bib : bib,
+          followerName: follower ? follower.name : "",
+          pos: leader.pos || ""
+        };
+      });
+
+      renderRankingList();
+    }
+
+    function clearManualInputs() {
+      document.querySelectorAll(".manual-follower-input").forEach(input => input.value = "");
+      leaders.forEach((_, index) => {
+        const label = document.getElementById(`manual-follower-name-${index}`);
+        if (label) {
+          label.textContent = "—";
+          label.className = "text-blue-300";
+        }
+      });
+      applyManualPairing();
+    }
+
+    function renderRankingList() {
+      const list = document.getElementById("ranking-list");
+
+      list.innerHTML = currentPairs.map((pair, index) => `
+        <li class="bg-slate-700 p-4 rounded-xl border border-slate-600 shadow-md" data-index="${index}">
+          <div class="flex justify-between items-center gap-3">
+            <div class="text-sm">
+              <div class="font-bold text-slate-300">#${index + 1}</div>
+              <div class="font-semibold">#${escapeHtml(pair.leaderBib)} ${escapeHtml(pair.leaderName)}</div>
+              <div class="text-blue-300">#${escapeHtml(pair.followerBib || "")} ${escapeHtml(pair.followerName || "")}</div>
+            </div>
+            <div class="text-xs text-slate-400">húzd</div>
+          </div>
+        </li>
+      `).join("");
+
+      document.getElementById("pair-count").textContent = `${currentPairs.length} pár`;
+
+      if (rankingSortable) {
+        rankingSortable.destroy();
+      }
+
+      rankingSortable = new Sortable(list, {
+        animation: 150,
+        ghostClass: "opacity-50",
+        onEnd: syncCurrentPairsFromDom
+      });
+    }
+
+    function syncCurrentPairsFromDom() {
+      const items = document.querySelectorAll("#ranking-list li");
+      const reordered = [];
+
+      items.forEach(item => {
+        const idx = Number(item.dataset.index);
+        reordered.push(currentPairs[idx]);
+      });
+
+      currentPairs = reordered;
+      renderRankingList();
+    }
+
+    async function submitFinalScores() {
+      const fileId = document.getElementById("event-select").value;
+      const sheetName = document.getElementById("category-select").value;
+      const judgeName = document.getElementById("judge-name").value.trim();
+      const danceLabel = document.getElementById("dance-label").value.trim();
+      const mode = getPairingMode();
+      const shift = Number(document.getElementById("rotation-shift").value || 0);
+
+      if (!fileId || !sheetName) {
+        alert("Hiányzik az esemény vagy a kategória.");
+        return;
+      }
+
+      if (!judgeName) {
+        alert("A bíró neve kötelező.");
+        return;
+      }
+
+      if (!currentPairs.length) {
+        alert("Nincs menthető párosítás.");
+        return;
+      }
+
+      const hasEmptyFollower = currentPairs.some(p => !String(p.followerBib || "").trim());
+      if (hasEmptyFollower) {
+        if (!confirm("Van olyan leader, akihez nincs follower megadva. Így is mented?")) {
+          return;
+        }
+      }
+
+      const payload = {
+        action: "save_final_scores",
+        fileId,
+        sheetName,
+        judgeName,
+        danceLabel,
+        pairingMode: mode,
+        shiftValue: mode === "rotation" ? shift : "",
+        pairs: currentPairs.map((pair, index) => ({
+          rank: index + 1,
+          leaderBib: pair.leaderBib,
+          leaderName: pair.leaderName,
+          followerBib: pair.followerBib,
+          followerName: pair.followerName,
+          pos: pair.pos || ""
+        }))
+      };
+
+      const btn = document.getElementById("save-btn");
+      btn.disabled = true;
+      btn.textContent = "Mentés folyamatban...";
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify(payload)
+        });
+
+        alert("A final rangsor mentve lett.");
+      } catch (err) {
+        alert("Hiba történt mentés közben.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Mentés a táblázatba";
+      }
+    }
+
+    function rotateArray(arr, shift) {
+      if (!arr.length) return [];
+      const n = arr.length;
+      let s = shift % n;
+      if (s < 0) s += n;
+      return arr.map((_, i) => arr[(i + s) % n]);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    window.addEventListener("load", loadEvents);
+  </script>
+</body>
+</html>
