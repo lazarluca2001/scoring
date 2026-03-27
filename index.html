@@ -1,59 +1,79 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
+    <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
-<body class="bg-gray-100 p-5">
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-lg">
-        <input id="judge-name" type="text" placeholder="Bíró neve" class="w-full mb-4 p-2 border rounded">
-        <button onclick="loadData()" class="bg-blue-600 text-white px-4 py-2 rounded mb-4 w-full font-bold">LISTA BETÖLTÉSE</button>
-        
-        <ul id="sortable-list" class="space-y-2">
-            </ul>
-        
-        <button onclick="submitRanking()" class="mt-6 bg-green-600 text-white px-4 py-2 rounded w-full font-bold">RANKING BEKÜLDÉSE</button>
+<body class="bg-slate-100 p-4">
+    <div class="max-w-2xl mx-auto space-y-4">
+        <input id="j-name" type="text" placeholder="Bíró neve" class="w-full p-3 rounded-xl border">
+        <select id="cat-select" class="w-full p-3 rounded-xl border"><option>Kategória betöltése...</option></select>
+        <button onclick="loadJudgement()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">BETÖLTÉS</button>
+
+        <ul id="judge-list" class="space-y-2"></ul>
+
+        <button onclick="submit()" class="w-full bg-green-600 text-white p-5 rounded-2xl font-black text-xl shadow-lg">BEKÜLDÉS</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
+        let followers = [];
 
-        async function loadData() {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json(); // [ ["Leader Bib", ...], ["249", "Rafal", "247", "Stefanie"] ]
-            const list = document.getElementById('sortable-list');
-            list.innerHTML = "";
+        async function loadJudgement() {
+            const cat = document.getElementById('cat-select').value;
+            const res = await fetch(`${SCRIPT_URL}?category=${cat}`);
+            const data = await res.json();
             
-            data.slice(1).forEach(row => {
-                const li = document.createElement('li');
-                li.className = "p-3 bg-slate-50 border rounded flex justify-between items-center cursor-move";
-                li.dataset.bib = row[0];
-                li.innerHTML = `<span><b>#${row[0]}</b> ${row[1]} & <b>#${row[2]}</b> ${row[3]}</span> <span class="rank-badge text-gray-400"></span>`;
-                list.appendChild(li);
-            });
+            const leaders = data.slice(1).filter(d => d[2] === "Leader");
+            followers = data.slice(1).filter(d => d[2] === "Follower");
+
+            const list = document.getElementById('judge-list');
+            list.innerHTML = leaders.map(l => `
+                <li class="bg-white p-4 rounded-xl shadow-sm border flex flex-col gap-2 cursor-move" data-lbib="${l[0]}" data-lname="${l[1]}">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-800">#${l[0]} ${l[1]}</span>
+                        <span class="text-slate-300">☰</span>
+                    </div>
+                    <select class="f-select w-full p-2 bg-slate-50 border rounded-lg text-sm">
+                        <option value="">-- Válassz Followert --</option>
+                        ${followers.map(f => `<option value="${f[0]}" data-name="${f[1]}">#${f[0]} ${f[1]}</option>`).join('')}
+                    </select>
+                </li>
+            `).join('');
+
             new Sortable(list, { animation: 150 });
         }
 
-        async function submitRanking() {
-            const name = document.getElementById('judge-name').value;
-            if(!name) return alert("Add meg a neved!");
+        async function submit() {
+            const items = document.querySelectorAll('#judge-list li');
+            const cat = document.getElementById('cat-select').value;
+            const jName = document.getElementById('j-name').value;
             
-            const items = document.querySelectorAll('#sortable-list li');
-            let scores = {};
+            let pairs = [];
             items.forEach((item, index) => {
-                scores[item.dataset.bib] = index + 1; // Helyezés a sorrend alapján
+                const fSel = item.querySelector('.f-select');
+                const opt = fSel.options[fSel.selectedIndex];
+                pairs.push({
+                    lBib: item.dataset.lbib,
+                    lName: item.dataset.lname,
+                    fBib: fSel.value,
+                    fName: opt.dataset.name || "",
+                    rank: index + 1
+                });
             });
 
             await fetch(SCRIPT_URL, {
                 method: "POST",
-                body: JSON.stringify({ 
-                    action: "submit_scores", 
-                    judgeName: name, 
-                    scores: scores 
-                })
+                body: JSON.stringify({ action: "submit_scores", category: cat, judgeName: jName, pairs: pairs })
             });
-            alert("Helyezések elmentve!");
+            alert("Sikeresen beküldve!");
         }
+
+        // Kategóriák inicializálása
+        fetch(SCRIPT_URL).then(r => r.json()).then(cats => {
+            document.getElementById('cat-select').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        });
     </script>
 </body>
 </html>
