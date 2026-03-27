@@ -1,24 +1,103 @@
-<input id="event-name" type="text" placeholder="Esemény neve" value="KingSwing2026" class="w-full p-3 bg-slate-700 rounded-xl mb-2">
-<button onclick="fetchCategories()" class="w-full bg-slate-600 p-2 rounded-lg text-xs mb-4">Kategóriák listázása</button>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Judge Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-4">
+    <div class="max-w-md mx-auto space-y-4">
+        <div class="bg-slate-800 p-5 rounded-2xl shadow-xl border border-slate-700">
+            <input id="event-name" type="text" value="KingSwing2026" class="w-full p-3 bg-slate-700 rounded-xl mb-3 text-blue-300 font-bold border-none">
+            <input id="judge-name" type="text" placeholder="Bíró neve" class="w-full p-3 bg-slate-700 rounded-xl mb-3 border-none">
+            
+            <div class="flex gap-2">
+                <select id="cat-select" class="flex-1 p-3 bg-slate-700 rounded-xl text-sm border-none outline-none">
+                    <option value="">Kategóriák...</option>
+                </select>
+                <button onclick="fetchCategories()" class="bg-slate-600 px-4 rounded-xl italic text-xs">Frissítés</button>
+            </div>
+            
+            <button onclick="loadList()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold active:scale-95 transition-all">VERSENY BETÖLTÉSE</button>
+        </div>
 
-<script>
-async function fetchCategories() {
-    const event = document.getElementById('event-name').value;
-    const res = await fetch(`${SCRIPT_URL}?eventName=${event}`);
-    const cats = await res.json();
-    const select = document.getElementById('cat-select');
-    select.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-}
+        <ul id="judge-list" class="space-y-2"></ul>
 
-// A submit funkcióban pedig küldjük el az eventName-t is:
-async function submit() {
-    // ... korábbi kód ...
-    body: JSON.stringify({ 
-        action: "submit_scores", 
-        eventName: document.getElementById('event-name').value,
-        category: cat, 
-        judgeName: jName, 
-        pairs: pairs 
-    })
-}
-</script>
+        <button id="submit-btn" onclick="submit()" class="hidden w-full bg-green-600 py-4 rounded-2xl font-black text-lg shadow-2xl active:scale-95 transition-all">
+            PONTOK BEKÜLDÉSE
+        </button>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
+        let followers = [];
+
+        async function fetchCategories() {
+            const event = document.getElementById('event-name').value;
+            const res = await fetch(`${SCRIPT_URL}?eventName=${event}`);
+            const cats = await res.json();
+            const select = document.getElementById('cat-select');
+            select.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        async function loadList() {
+            const event = document.getElementById('event-name').value;
+            const cat = document.getElementById('cat-select').value;
+            const res = await fetch(`${SCRIPT_URL}?eventName=${event}&category=${cat}`);
+            const data = await res.json();
+            
+            const leaders = data.slice(1).filter(d => d[2] === "Leader");
+            followers = data.slice(1).filter(d => d[2] === "Follower");
+
+            const list = document.getElementById('judge-list');
+            list.innerHTML = leaders.map(l => `
+                <li class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col gap-2" data-lbib="${l[0]}" data-lname="${l[1]}">
+                    <div class="flex justify-between font-bold text-sm">
+                        <span class="text-slate-400">#${l[0]}</span> <span>${l[1]}</span>
+                    </div>
+                    <select class="f-select w-full p-2 bg-slate-900 border border-slate-700 rounded text-blue-400 text-xs">
+                        <option value="">-- Follower --</option>
+                        ${followers.map(f => `<option value="${f[0]}" data-name="${f[1]}">#${f[0]} ${f[1]}</option>`).join('')}
+                    </select>
+                </li>
+            `).join('');
+
+            document.getElementById('submit-btn').classList.remove('hidden');
+            new Sortable(list, { animation: 150 });
+        }
+
+        async function submit() {
+            const jName = document.getElementById('judge-name').value;
+            const event = document.getElementById('event-name').value;
+            const cat = document.getElementById('cat-select').value;
+            if(!jName) return alert("Add meg a neved!");
+
+            const items = document.querySelectorAll('#judge-list li');
+            const pairs = Array.from(items).map((item, index) => {
+                const sel = item.querySelector('.f-select');
+                return {
+                    lBib: item.dataset.lbib,
+                    lName: item.dataset.lname,
+                    fBib: sel.value,
+                    fName: sel.options[sel.selectedIndex].dataset.name || "",
+                    rank: index + 1
+                };
+            });
+
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ 
+                    action: "submit_scores", 
+                    eventName: event,
+                    category: cat, 
+                    judgeName: jName, 
+                    pairs: pairs 
+                })
+            });
+            alert("Sikeresen elmentve!");
+        }
+    </script>
+</body>
+</html>
