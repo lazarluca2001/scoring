@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J&J Marshalling Manager - King Swing 2026</title>
+    <title>J&J Marshalling - King Swing 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
@@ -14,169 +14,150 @@
             font-size: 0.75rem;
             display: block;
             text-align: center;
-            padding: 10px;
+            padding: 12px;
         }
+        .drag-handle { cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-slate-100 min-h-screen">
 
-    <nav class="bg-slate-800 text-white p-4 sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">👑</span>
-                <h1 class="font-bold tracking-tight">KING SWING 2026 - MARSHALLING</h1>
-            </div>
-            
-            <div class="flex gap-2 bg-slate-700 p-1 rounded-lg">
-                <select id="round-id" class="bg-transparent text-sm p-2 outline-none border-none">
-                    <option value="5436">Newcomer Final (5436)</option>
-                    <option value="5439">Novice Final (5439)</option>
-                    <option value="5442">Intermediate Final (5442)</option>
-                    <option value="5447">Advanced Final (5447)</option>
-                    <option value="5444">All-Star Final (5444)</option>
-                </select>
-                <button onclick="fetchAndParse()" id="load-btn" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md text-sm font-bold transition">
-                    LISTA BETÖLTÉSE
-                </button>
-            </div>
+    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="font-bold flex items-center gap-2">
+                <span class="text-xl">🏆</span> KING SWING 2026
+            </h1>
+            <button onclick="document.getElementById('import-modal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg font-bold text-sm transition-all shadow-lg active:scale-95">
+                ADATOK BEILLESZTÉSE
+            </button>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-4 flex flex-col md:flex-row gap-6">
+    <div id="import-modal" class="hidden fixed inset-0 bg-slate-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl">
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">Lista Dekódoló</h2>
+            <p class="text-slate-500 text-sm mb-4 font-medium">Másold be a scoring.dance-ről kapott összefolyó szöveget:</p>
+            <textarea id="raw-input" class="w-full h-48 border-2 border-slate-100 rounded-xl p-4 text-sm font-mono focus:border-blue-500 outline-none transition-all" placeholder="Pl: #249Rafal Grzelak1#247Stefanie Tschom..."></textarea>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="document.getElementById('import-modal').classList.add('hidden')" class="px-5 py-2 text-slate-400 font-bold hover:text-slate-600">MÉGSE</button>
+                <button onclick="processStrictInput()" class="bg-slate-900 text-white px-8 py-2 rounded-xl font-bold hover:bg-black transition-all">DEKÓDOLÁS</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8 flex flex-col md:flex-row gap-8">
         
-        <div class="w-full md:w-1/4">
-            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden sticky top-24">
-                <div class="bg-blue-600 text-white p-3 font-bold text-sm flex justify-between">
-                    FOLLOWEREK <span id="f-count">0</span>
+        <div class="w-full md:w-1/3">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden sticky top-28">
+                <div class="bg-blue-50 p-4 border-b border-blue-100 flex justify-between items-center">
+                    <h2 class="font-black text-blue-800 text-xs uppercase tracking-widest">Follower Pool</h2>
+                    <span id="f-count" class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded-full font-bold">0</span>
                 </div>
-                <div id="follower-pool" class="p-3 min-h-[500px] max-h-[70vh] overflow-y-auto space-y-2 bg-gray-50">
-                    <p class="text-gray-400 text-xs text-center mt-10">Válaszd ki a fordulót és nyomj a betöltésre.</p>
+                <div id="follower-pool" class="p-4 min-h-[400px] max-h-[65vh] overflow-y-auto space-y-2 bg-slate-50/50">
+                    <div class="text-slate-400 text-center py-20 text-sm italic">Nincs adat...</div>
                 </div>
             </div>
         </div>
 
-        <div class="w-full md:w-3/4">
-            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+        <div class="w-full md:w-2/3">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <table class="w-full border-collapse">
                     <thead>
-                        <tr class="bg-gray-100 text-gray-600 text-xs uppercase">
-                            <th class="p-3 w-10 text-center">Sor.</th>
-                            <th class="p-3 text-left leading-tight">Leader (Fix)</th>
-                            <th class="p-3 text-left">Párosított Follower</th>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-widest border-b">
+                            <th class="p-4 w-12">#</th>
+                            <th class="p-4 text-left leading-tight">Leader</th>
+                            <th class="p-4 text-left leading-tight">Follower</th>
                         </tr>
                     </thead>
-                    <tbody id="pairing-table" class="divide-y divide-gray-100">
-                        </tbody>
+                    <tbody id="pairing-table" class="divide-y divide-slate-50">
+                        <tr><td colspan="3" class="p-20 text-center text-slate-300 italic text-sm">Várd a beillesztést...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
     <script>
-        // Az "allorigins" proxy segít kikerülni a CORS tiltást GitHub Pages-en
-        const PROXY = "https://api.allorigins.win/get?url=";
-
-        async function fetchAndParse() {
-            const roundId = document.getElementById('round-id').value;
-            const btn = document.getElementById('load-btn');
-            const targetUrl = `https://scoring.dance/huHU/events/373/wall?act=ajaxround&round=${roundId}`;
+        function processStrictInput() {
+            const text = document.getElementById('raw-input').value;
             
-            btn.innerText = "TÖLTÉS...";
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(PROXY + encodeURIComponent(targetUrl));
-                const data = await response.json();
+            // Ez a RegEx megkeresi a #Szám + Név mintázatokat
+            // Darabokra töri a szöveget a # karakterek mentén
+            const parts = text.split('#').filter(p => p.trim() !== "");
+            
+            let dancers = parts.map(p => {
+                // Kiszűrjük a számot az elejéről
+                const numMatch = p.match(/^(\d+)/);
+                if (!numMatch) return null;
                 
-                // A kapott HTML stringet egy láthatatlan elembe tesszük, hogy tudjunk benne keresni
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
+                const bib = numMatch[1];
+                // A név a szám után van, de le kell vágni a végéről a helyezés számát (ha van)
+                let namePart = p.replace(bib, '').trim();
+                // Eltávolítjuk a végéről a sorrendi számot (Pos), ami a nevek után ragadt
+                let cleanName = namePart.replace(/\d+$/, '').trim();
                 
-                // A scoring.dance táblázatának feldolgozása
-                // Feltételezzük, hogy a táblázatban benne vannak a nevek és rajtszámok
-                const rows = doc.querySelectorAll('tr');
-                let foundLeaders = [];
-                let foundFollowers = [];
+                return { bib, name: cleanName };
+            }).filter(d => d !== null);
 
-                rows.forEach(row => {
-                    const text = row.innerText.trim();
-                    if (!text || text.includes("Bib") || text.includes("Points")) return;
+            // Szétválogatás: páros indexek Leaderek, páratlanok Followerek (vagy fordítva a struktúra alapján)
+            // A megadott minta alapján: #249Leader -> 1 (Pos) -> #247Follower
+            // Tehát minden páratlan elem egy Leader, minden páros egy Follower.
+            let leaders = [];
+            let followers = [];
 
-                    // Egyszerűsített kiszedés: Rajtszám + Név
-                    // A valódi HTML struktúra alapján ez finomítható
-                    const cells = row.querySelectorAll('td');
-                    if (cells.length >= 2) {
-                        const bib = cells[0].innerText.trim();
-                        const name = cells[1].innerText.trim();
-                        const role = text.toLowerCase().includes('follower') ? 'follower' : 'leader';
-
-                        const dancer = { bib, name };
-                        if (role === 'leader') foundLeaders.push(dancer);
-                        else foundFollowers.push(dancer);
-                    }
-                });
-
-                // Ha az AJAX válasz nem bontja szét Leaderekre és Followerekre, 
-                // akkor a fele-fele elv vagy a rajtszám alapján kell szétválogatnunk.
-                // Itt egy alapvető renderelés:
-                renderLists(foundLeaders, foundFollowers);
-
-            } catch (err) {
-                console.error(err);
-                alert("Hiba történt az adatok betöltésekor.");
-            } finally {
-                btn.innerText = "LISTA BETÖLTÉSE";
-                btn.disabled = false;
+            for (let i = 0; i < dancers.length; i++) {
+                if (i % 2 === 0) leaders.push(dancers[i]);
+                else followers.push(dancers[i]);
             }
+
+            renderView(leaders, followers);
+            document.getElementById('import-modal').classList.add('hidden');
         }
 
-        function renderLists(leaders, followers) {
+        function renderView(leaders, followers) {
             const pool = document.getElementById('follower-pool');
             const table = document.getElementById('pairing-table');
 
-            // Ha az API egyben adja le őket, itt manuálisan is szétválaszthatod
-            // Most példaként betöltjük őket
             pool.innerHTML = followers.map(f => `
-                <div class="p-3 bg-white border rounded shadow-sm cursor-grab hover:border-blue-500 text-sm font-medium" data-bib="${f.bib}">
-                    <span class="text-blue-600 font-bold">#${f.bib}</span> ${f.name}
+                <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm cursor-grab hover:border-blue-400 hover:shadow-md transition-all text-sm font-semibold text-slate-700 flex items-center gap-3">
+                    <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[10px] font-black">#${f.bib}</span> 
+                    <span class="truncate">${f.name}</span>
                 </div>
             `).join('');
-            
+
             document.getElementById('f-count').innerText = followers.length;
 
-            table.innerHTML = leaders.map((l, index) => `
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="p-3 text-center font-mono text-gray-300 drag-handle cursor-move">:::</td>
-                    <td class="p-3">
-                        <div class="flex items-center gap-2">
-                            <span class="bg-gray-800 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">#${l.bib}</span>
-                            <span class="font-bold text-slate-700">${l.name}</span>
+            table.innerHTML = leaders.map(l => `
+                <tr class="hover:bg-blue-50/30 transition-colors">
+                    <td class="p-4 text-center drag-handle text-slate-200 hover:text-slate-400 font-bold tracking-tighter transition-colors">⋮⋮</td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-slate-900 text-white text-[10px] px-2 py-1 rounded font-black tracking-tighter">#${l.bib}</span>
+                            <span class="font-bold text-slate-800 text-sm">${l.name}</span>
                         </div>
                     </td>
-                    <td class="p-3">
-                        <div class="follower-slot min-h-[44px] border-2 border-dashed border-gray-200 rounded-lg p-1 transition-colors"></div>
+                    <td class="p-4">
+                        <div class="follower-slot min-h-[54px] border-2 border-dashed border-slate-100 rounded-xl p-1 bg-white/50 ring-inset focus:ring-2 focus:ring-blue-500 transition-all"></div>
                     </td>
                 </tr>
             `).join('');
 
-            initSortables();
+            setupSortables();
         }
 
-        function initSortables() {
-            // Followerek mozgatása
+        function setupSortables() {
             new Sortable(document.getElementById('follower-pool'), {
-                group: 'dancers',
+                group: 'marshalling',
                 animation: 150,
                 ghostClass: 'ghost'
             });
 
             document.querySelectorAll('.follower-slot').forEach(slot => {
                 new Sortable(slot, {
-                    group: 'dancers',
+                    group: 'marshalling',
                     animation: 150,
                     ghostClass: 'ghost',
-                    onAdd: function (evt) {
+                    onAdd: (evt) => {
                         if (evt.to.children.length > 1) {
                             document.getElementById('follower-pool').appendChild(evt.item);
                         }
@@ -184,7 +165,6 @@
                 });
             });
 
-            // Sorrend (párok) mozgatása
             new Sortable(document.getElementById('pairing-table'), {
                 handle: '.drag-handle',
                 animation: 150,
