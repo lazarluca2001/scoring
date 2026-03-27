@@ -1,49 +1,66 @@
-async function upload() {
-    const btn = document.getElementById('up-btn');
-    const event = document.getElementById('event-name').value;
-    const cat = document.getElementById('cat-name').value;
-    const text = document.getElementById('raw-input').value;
-
-    if(!event || !cat || !text) return alert("Minden mezőt tölts ki!");
-
-    // Szeletelés a # alapján
-    const parts = text.split('#').filter(p => p.trim() !== "");
-    
-    // Táncosok kinyerése
-    let dancers = parts.map(p => {
-        const bibMatch = p.match(/^(\d+)/);
-        if(!bibMatch) return null;
-        const bib = bibMatch[1];
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - King Swing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-6 font-sans">
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
+        <h1 class="text-xl font-bold text-slate-800 border-b pb-4 mb-6">Versenyzők Betöltése</h1>
         
-        // Eltávolítjuk a Bib-et és a végén ragadt "Pos" számot is
-        let rawName = p.replace(bib, '').trim();
-        let cleanName = rawName.replace(/\d+$/, '').trim(); 
-        
-        // Szerepkör eldöntése a pozíció vagy szöveg alapján
-        // Ha az Admin-ba beillesztett szövegben benne van a "Follower" szó
-        let role = p.toLowerCase().includes('follower') ? 'Follower' : 'Leader';
-        
-        return { bib: bib, name: cleanName, role: role };
-    }).filter(d => d !== null);
+        <div class="space-y-4">
+            <input id="event-name" type="text" placeholder="Esemény (pl: KingSwing2026)" class="w-full p-3 border rounded-xl bg-blue-50 font-bold outline-none">
+            <input id="cat-name" type="text" placeholder="Kategória (pl: Novice_Final)" class="w-full p-3 border rounded-xl outline-none">
+            <textarea id="raw-input" class="w-full h-40 border p-3 rounded-xl text-xs font-mono bg-slate-50" placeholder="#249Rafal Grzelak1#247Stefanie Tschom..."></textarea>
+            
+            <button id="up-btn" onclick="upload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all shadow-md">
+                ADATOK FELKÜLDÉSE
+            </button>
+        </div>
+    </div>
 
-    btn.disabled = true; btn.innerText = "Küldés...";
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM-Vb2TmjgYX4l4SEICw3GV_VfNJ6bEMDQmFHKuiJNCaO2Tn5clm_wpGaEjBSooso/exec";
 
-    try {
-        await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors", // A biztonság kedvéért marad, ha a táblázat frissül, akkor jó
-            body: JSON.stringify({ 
-                action: "upload_dancers", 
-                eventName: event, 
-                category: cat, 
-                data: dancers 
-            })
-        });
-        alert("Lista elküldve a(z) " + event + " lapra!");
-    } catch (e) {
-        alert("Hiba történt!");
-        console.error(e);
-    } finally {
-        btn.disabled = false; btn.innerText = "ADATOK HOZZÁADÁSA";
-    }
-}
+        async function upload() {
+            const btn = document.getElementById('up-btn');
+            const event = document.getElementById('event-name').value;
+            const cat = document.getElementById('cat-name').value;
+            const text = document.getElementById('raw-input').value;
+
+            if(!event || !cat || !text) return alert("Minden mezőt tölts ki!");
+
+            const parts = text.split('#').filter(p => p.trim() !== "");
+            let dancers = parts.map((p, index) => {
+                const bibMatch = p.match(/^(\d+)/);
+                if(!bibMatch) return null;
+                const bib = bibMatch[1];
+                let rawName = p.replace(bib, '').trim();
+                let cleanName = rawName.replace(/\d+$/, '').trim(); // Levágjuk a végéről a Pos számot
+                
+                // Szerepkör meghatározása: ha a szövegben benne van, vagy logikai sorrend
+                let role = p.toLowerCase().includes('follower') ? 'Follower' : 'Leader';
+                
+                return { bib, name: cleanName, role };
+            }).filter(d => d !== null);
+
+            btn.disabled = true; btn.innerText = "Küldés folyamatban...";
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify({ action: "upload_dancers", eventName: event, category: cat, data: dancers })
+                });
+                alert("Sikeres feltöltés a(z) " + event + " lapra!");
+                document.getElementById('raw-input').value = "";
+            } catch (e) {
+                alert("Hiba történt a küldés során!");
+            } finally {
+                btn.disabled = false; btn.innerText = "ADATOK FELKÜLDÉSE";
+            }
+        }
+    </script>
+</body>
+</html>
