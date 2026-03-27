@@ -1,7 +1,10 @@
 <select id="cat-name" class="p-2 border rounded mb-2 w-full">
-    <option value="Newcomer_Final">Newcomer Final</option>
-    <option value="Novice_Final">Novice Final</option>
-    <option value="Intermediate_Final">Intermediate Final</option>
+    <option value="Newcomer_final">Newcomer final</option>
+    <option value="Novice_final">Novice final</option>
+    <option value="Intermediate_final">Intermediate final</option>
+    <option value="Advanced_final">Advanced final</option>
+    <option value="All-star_final">All-star final</option>
+    <option value="Champion_final">Champion final</option>
 </select>
 <textarea id="raw-input" class="w-full h-40 border p-2 text-xs" placeholder="Ide a másolt szöveg..."></textarea>
 <button onclick="upload()" class="bg-black text-white p-3 w-full rounded">ADATOK FELTÖLTÉSE</button>
@@ -19,7 +22,7 @@ async function upload() {
         return { bib, name, role };
     });
 
-    await fetch("SAJÁT_SCRIPT_URL", {
+    await fetch("https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec", {
         method: "POST",
         body: JSON.stringify({ action: "upload_dancers", category: cat, data: dancers })
     });
