@@ -1,10 +1,177 @@
-<script>
-async function uploadToSheets(pairs) {
-    const url = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
-    await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({ action: "upload_base", data: pairs })
-    });
-    alert("Adatok feltöltve!");
-}
-</script>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - King Swing Marshalling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <nav class="bg-slate-900 text-white p-4 shadow-xl">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 class="font-bold tracking-tight flex items-center gap-2">
+                <span class="text-xl">⚙️</span> ADMIN PANEL - ADATFELTÖLTÉS
+            </h1>
+            <div id="status-badge" class="hidden bg-green-500 text-[10px] px-2 py-1 rounded-full uppercase font-black">
+                Szinkronizálva
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="md:col-span-1 space-y-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="font-bold text-slate-800 mb-2">1. Adatok másolása</h2>
+                    <p class="text-xs text-slate-500 mb-4">Másold be a scoring.dance-ről a "bevonuló" listát (BibLeaderPosBibFollower massza).</p>
+                    
+                    <textarea id="raw-input" 
+                        class="w-full h-64 border-2 border-slate-100 rounded-xl p-3 text-xs font-mono focus:border-blue-500 outline-none transition-all bg-slate-50"
+                        placeholder="#249Rafal Grzelak1#247Stefanie Tschom..."></textarea>
+                    
+                    <button onclick="processInput()" 
+                        class="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all active:scale-95">
+                        LISTA ELEMZÉSE
+                    </button>
+                </div>
+            </div>
+
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                        <h2 class="font-bold text-slate-700 text-sm uppercase tracking-wider">2. Előnézet & Ellenőrzés</h2>
+                        <span id="pair-count" class="bg-slate-200 text-slate-600 text-[10px] px-2 py-1 rounded font-bold">0 PÁR</span>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[10px] uppercase text-slate-400 bg-white border-b">
+                                    <th class="p-4">Leader</th>
+                                    <th class="p-4">Follower</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-table" class="divide-y divide-slate-100">
+                                <tr>
+                                    <td colspan="2" class="p-10 text-center text-slate-400 italic text-sm">
+                                        Még nincsenek feldolgozott adatok.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border-t">
+                        <button id="upload-btn" onclick="sendToSheets()" disabled
+                            class="w-full bg-green-600 text-white py-4 rounded-xl font-black uppercase tracking-widest disabled:bg-slate-300 disabled:cursor-not-allowed hover:bg-green-700 transition-all shadow-lg">
+                            ADATOK FELKÜLDÉSE A TÁBLÁZATBA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let globalPairs = [];
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
+
+        function processInput() {
+            const text = document.getElementById('raw-input').value;
+            if (!text.trim()) return alert("A mező üres!");
+
+            // Szeletelés a # karakterek mentén
+            const parts = text.split('#').filter(p => p.trim() !== "");
+            
+            let dancers = parts.map(p => {
+                const numMatch = p.match(/^(\d+)/);
+                if (!numMatch) return null;
+                
+                const bib = numMatch[1];
+                let namePart = p.replace(bib, '').trim();
+                // Eltávolítjuk a végéről a felesleges sorrendi számot
+                let cleanName = namePart.replace(/\d+$/, '').trim();
+                
+                return { bib, name: cleanName };
+            }).filter(d => d !== null);
+
+            // Párosítás (L+F felváltva)
+            globalPairs = [];
+            for (let i = 0; i < dancers.length; i += 2) {
+                if (dancers[i] && dancers[i+1]) {
+                    globalPairs.push({
+                        lBib: dancers[i].bib,
+                        lName: dancers[i].name,
+                        fBib: dancers[i+1].bib,
+                        fName: dancers[i+1].name
+                    });
+                }
+            }
+
+            renderPreview();
+        }
+
+        function renderPreview() {
+            const table = document.getElementById('preview-table');
+            const countLabel = document.getElementById('pair-count');
+            const uploadBtn = document.getElementById('upload-btn');
+
+            if (globalPairs.length === 0) {
+                table.innerHTML = `<tr><td colspan="2" class="p-10 text-center text-slate-400 italic">Nem sikerült dekódolni a párokat.</td></tr>`;
+                uploadBtn.disabled = true;
+                return;
+            }
+
+            table.innerHTML = globalPairs.map(p => `
+                <tr class="text-sm">
+                    <td class="p-4 border-r bg-slate-50/50">
+                        <span class="font-black text-slate-900 mr-2">#${p.lBib}</span> ${p.lName}
+                    </td>
+                    <td class="p-4">
+                        <span class="font-black text-blue-600 mr-2">#${p.fBib}</span> ${p.fName}
+                    </td>
+                </tr>
+            `).join('');
+
+            countLabel.innerText = `${globalPairs.length} PÁR`;
+            uploadBtn.disabled = false;
+        }
+
+        async function sendToSheets() {
+            const btn = document.getElementById('upload-btn');
+            const originalText = btn.innerText;
+            
+            btn.innerText = "KÜLDÉS FOLYAMATBAN...";
+            btn.disabled = true;
+
+            try {
+                // Mivel a Google Apps Script CORS-t használ, a 'no-cors' módot alkalmazzuk, 
+                // de mivel JSON-t küldünk, a szerver oldali doPost fogja feldolgozni.
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors", 
+                    cache: "no-cache",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "upload_base", data: globalPairs })
+                });
+
+                alert("✅ Az adatok sikeresen átküldve a Google Táblázatba (BaseData fül)!");
+                document.getElementById('status-badge').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                alert("❌ Hiba történt a küldés során. Ellenőrizd a konzolt!");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
