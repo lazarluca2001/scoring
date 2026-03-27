@@ -2,25 +2,43 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Judge Panel - King Swing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
-<body class="bg-slate-100 p-4">
-    <div class="max-w-2xl mx-auto space-y-4">
-        <input id="j-name" type="text" placeholder="Bíró neve" class="w-full p-3 rounded-xl border">
-        <select id="cat-select" class="w-full p-3 rounded-xl border"><option>Kategória betöltése...</option></select>
-        <button onclick="loadJudgement()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">BETÖLTÉS</button>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 pb-20">
+    <div class="max-w-md mx-auto space-y-4">
+        <header class="text-center py-4 border-b border-slate-800">
+            <h1 class="text-xl font-black text-blue-400 uppercase tracking-widest italic">Judge Scoring</h1>
+        </header>
 
-        <ul id="judge-list" class="space-y-2"></ul>
+        <div class="bg-slate-800 p-5 rounded-2xl space-y-3 shadow-2xl border border-slate-700">
+            <input id="judge-name" type="text" placeholder="Bíró neve" class="w-full p-3 bg-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border-none">
+            <select id="cat-select" class="w-full p-3 bg-slate-700 rounded-xl outline-none border-none text-sm font-bold text-blue-300">
+                <option value="">Kategóriák betöltése...</option>
+            </select>
+            <button onclick="loadList()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-all active:scale-95">VERSENYZŐK BETÖLTÉSE</button>
+        </div>
 
-        <button onclick="submit()" class="w-full bg-green-600 text-white p-5 rounded-2xl font-black text-xl shadow-lg">BEKÜLDÉS</button>
+        <ul id="judge-list" class="space-y-3"></ul>
+
+        <button id="send-btn" onclick="submit()" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-green-600 hover:bg-green-500 py-4 rounded-2xl font-black text-lg shadow-2xl transition-all active:scale-95 z-50">
+            PONTOK BEKÜLDÉSE
+        </button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
         let followers = [];
 
-        async function loadJudgement() {
+        async function init() {
+            const res = await fetch(SCRIPT_URL);
+            const cats = await res.json();
+            document.getElementById('cat-select').innerHTML = cats.map(c => `<option value="${c}">${c.replace('_',' ')}</option>`).join('');
+        }
+
+        async function loadList() {
             const cat = document.getElementById('cat-select').value;
             const res = await fetch(`${SCRIPT_URL}?category=${cat}`);
             const data = await res.json();
@@ -30,50 +48,53 @@
 
             const list = document.getElementById('judge-list');
             list.innerHTML = leaders.map(l => `
-                <li class="bg-white p-4 rounded-xl shadow-sm border flex flex-col gap-2 cursor-move" data-lbib="${l[0]}" data-lname="${l[1]}">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-800">#${l[0]} ${l[1]}</span>
-                        <span class="text-slate-300">☰</span>
+                <li class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col gap-3 shadow-lg" data-lbib="${l[0]}" data-lname="${l[1]}">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                        <span class="font-black text-slate-400 tracking-tighter text-sm italic">LEADER #${l[0]}</span>
+                        <span class="text-white font-bold">${l[1]}</span>
                     </div>
-                    <select class="f-select w-full p-2 bg-slate-50 border rounded-lg text-sm">
-                        <option value="">-- Válassz Followert --</option>
+                    <select class="f-select w-full p-3 bg-slate-900 border border-slate-600 rounded-lg text-xs font-bold text-blue-400">
+                        <option value="">-- Follower kiválasztása --</option>
                         ${followers.map(f => `<option value="${f[0]}" data-name="${f[1]}">#${f[0]} ${f[1]}</option>`).join('')}
                     </select>
                 </li>
             `).join('');
 
-            new Sortable(list, { animation: 150 });
+            document.getElementById('send-btn').classList.remove('hidden');
+            new Sortable(list, { animation: 150, ghostClass: 'bg-blue-900' });
         }
 
         async function submit() {
-            const items = document.querySelectorAll('#judge-list li');
+            const jName = document.getElementById('judge-name').value;
             const cat = document.getElementById('cat-select').value;
-            const jName = document.getElementById('j-name').value;
-            
-            let pairs = [];
-            items.forEach((item, index) => {
+            if(!jName) return alert("Bíró neve kötelező!");
+
+            const items = document.querySelectorAll('#judge-list li');
+            const pairs = Array.from(items).map((item, index) => {
                 const fSel = item.querySelector('.f-select');
                 const opt = fSel.options[fSel.selectedIndex];
-                pairs.push({
+                return {
                     lBib: item.dataset.lbib,
                     lName: item.dataset.lname,
                     fBib: fSel.value,
                     fName: opt.dataset.name || "",
                     rank: index + 1
-                });
+                };
             });
+
+            const btn = document.getElementById('send-btn');
+            btn.disabled = true; btn.innerText = "KÜLDÉS...";
 
             await fetch(SCRIPT_URL, {
                 method: "POST",
+                mode: "no-cors",
                 body: JSON.stringify({ action: "submit_scores", category: cat, judgeName: jName, pairs: pairs })
             });
-            alert("Sikeresen beküldve!");
+            alert("✅ Sikeresen beküldve!");
+            btn.disabled = false; btn.innerText = "PONTOK BEKÜLDÉSE";
         }
 
-        // Kategóriák inicializálása
-        fetch(SCRIPT_URL).then(r => r.json()).then(cats => {
-            document.getElementById('cat-select').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-        });
+        window.onload = init;
     </script>
 </body>
 </html>
