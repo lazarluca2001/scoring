@@ -3,163 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J&J Verseny Kezelő</title>
+    <title>J&J Marshalling Manager - King Swing 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
-        .ghost { opacity: 0.4; background: #e0f2fe; }
-        .drag-handle { cursor: grab; }
-        .drag-handle:active { cursor: grabbing; }
+        .ghost { opacity: 0.3; background: #dbeafe; border: 2px dashed #3b82f6; }
         .follower-slot:empty::after {
             content: 'Húzz ide egy követőt';
-            color: #cbd5e1;
-            font-size: 0.875rem;
+            color: #94a3b8;
+            font-size: 0.75rem;
             display: block;
             text-align: center;
-            padding-top: 8px;
+            padding: 10px;
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-20">
+<body class="bg-gray-100 min-h-screen">
 
-    <nav class="bg-white shadow-sm border-b p-4 sticky top-0 z-10">
-        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                🕺 J&J Manager
-            </h1>
-            <div class="flex gap-2 items-center">
-                <select id="division-select" class="p-2 border rounded text-sm bg-gray-50">
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                    <option value="All-Star">All-Star</option>
-                    <option value="Champion">Champion</option>
+    <nav class="bg-slate-800 text-white p-4 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">👑</span>
+                <h1 class="font-bold tracking-tight">KING SWING 2026 - MARSHALLING</h1>
+            </div>
+            
+            <div class="flex gap-2 bg-slate-700 p-1 rounded-lg">
+                <select id="round-id" class="bg-transparent text-sm p-2 outline-none border-none">
+                    <option value="5436">Newcomer Final (5436)</option>
+                    <option value="5439">Novice Final (5439)</option>
+                    <option value="5442">Intermediate Final (5442)</option>
+                    <option value="5447">Advanced Final (5447)</option>
+                    <option value="5444">All-Star Final (5444)</option>
                 </select>
-                <button onclick="loadCompetitionData()" id="load-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition">
-                    Adatok Betöltése
+                <button onclick="fetchAndParse()" id="load-btn" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md text-sm font-bold transition">
+                    LISTA BETÖLTÉSE
                 </button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6">
+    <main class="max-w-7xl mx-auto p-4 flex flex-col md:flex-row gap-6">
         
-        <div class="w-full md:w-1/3">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-24">
-                <div class="bg-blue-50 p-3 border-b border-blue-100 flex justify-between items-center">
-                    <h2 class="font-bold text-blue-700 uppercase text-xs tracking-wider">Várakozó Followerek</h2>
-                    <span id="follower-count" class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">0</span>
+        <div class="w-full md:w-1/4">
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden sticky top-24">
+                <div class="bg-blue-600 text-white p-3 font-bold text-sm flex justify-between">
+                    FOLLOWEREK <span id="f-count">0</span>
                 </div>
-                <div id="follower-pool" class="p-4 min-h-[400px] max-h-[70vh] overflow-y-auto space-y-2">
-                    <p class="text-slate-400 text-center text-sm py-10 italic">Töltsd be az adatokat...</p>
+                <div id="follower-pool" class="p-3 min-h-[500px] max-h-[70vh] overflow-y-auto space-y-2 bg-gray-50">
+                    <p class="text-gray-400 text-xs text-center mt-10">Válaszd ki a fordulót és nyomj a betöltésre.</p>
                 </div>
             </div>
         </div>
 
-        <div class="w-full md:w-2/3">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 p-3 border-b border-slate-200 flex justify-between items-center">
-                    <h2 class="font-bold text-slate-700 uppercase text-xs tracking-wider">Bevonulási sorrend & Párok</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-slate-500 text-xs uppercase bg-slate-50">
-                                <th class="p-4 w-12 text-center">Rend.</th>
-                                <th class="p-4">Leader</th>
-                                <th class="p-4">Follower</th>
-                            </tr>
-                        </thead>
-                        <tbody id="main-table-body" class="divide-y divide-slate-100">
-                            </tbody>
-                    </table>
-                </div>
+        <div class="w-full md:w-3/4">
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 text-xs uppercase">
+                            <th class="p-3 w-10 text-center">Sor.</th>
+                            <th class="p-3 text-left leading-tight">Leader (Fix)</th>
+                            <th class="p-3 text-left">Párosított Follower</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pairing-table" class="divide-y divide-gray-100">
+                        </tbody>
+                </table>
             </div>
         </div>
 
     </main>
 
     <script>
-        const API_URL = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://scoring.dance/api/v1/events/373/registrations");
-        
-        let leaders = [];
-        let followers = [];
+        // Az "allorigins" proxy segít kikerülni a CORS tiltást GitHub Pages-en
+        const PROXY = "https://api.allorigins.win/get?url=";
 
-        async function loadCompetitionData() {
+        async function fetchAndParse() {
+            const roundId = document.getElementById('round-id').value;
             const btn = document.getElementById('load-btn');
-            const division = document.getElementById('division-select').value;
-            btn.innerText = "Töltés...";
+            const targetUrl = `https://scoring.dance/huHU/events/373/wall?act=ajaxround&round=${roundId}`;
+            
+            btn.innerText = "TÖLTÉS...";
             btn.disabled = true;
 
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(PROXY + encodeURIComponent(targetUrl));
                 const data = await response.json();
-                const competitors = JSON.parse(data.contents);
-
-                // Szűrés kategóriára és szerepkörre (Leader/Follower szétválasztás)
-                // Megjegyzés: A scoring.dance API struktúrájától függően a 'role' mezőt nézzük
-                const filtered = competitors.filter(c => c.division_name.includes(division));
                 
-                leaders = filtered.filter(c => c.role === "leader" || c.role_name === "Leader");
-                followers = filtered.filter(c => c.role === "follower" || c.role_name === "Follower");
+                // A kapott HTML stringet egy láthatatlan elembe tesszük, hogy tudjunk benne keresni
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                
+                // A scoring.dance táblázatának feldolgozása
+                // Feltételezzük, hogy a táblázatban benne vannak a nevek és rajtszámok
+                const rows = doc.querySelectorAll('tr');
+                let foundLeaders = [];
+                let foundFollowers = [];
 
-                renderLists();
-            } catch (error) {
-                alert("Hiba az adatok letöltésekor. Próbáld újra!");
-                console.error(error);
+                rows.forEach(row => {
+                    const text = row.innerText.trim();
+                    if (!text || text.includes("Bib") || text.includes("Points")) return;
+
+                    // Egyszerűsített kiszedés: Rajtszám + Név
+                    // A valódi HTML struktúra alapján ez finomítható
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 2) {
+                        const bib = cells[0].innerText.trim();
+                        const name = cells[1].innerText.trim();
+                        const role = text.toLowerCase().includes('follower') ? 'follower' : 'leader';
+
+                        const dancer = { bib, name };
+                        if (role === 'leader') foundLeaders.push(dancer);
+                        else foundFollowers.push(dancer);
+                    }
+                });
+
+                // Ha az AJAX válasz nem bontja szét Leaderekre és Followerekre, 
+                // akkor a fele-fele elv vagy a rajtszám alapján kell szétválogatnunk.
+                // Itt egy alapvető renderelés:
+                renderLists(foundLeaders, foundFollowers);
+
+            } catch (err) {
+                console.error(err);
+                alert("Hiba történt az adatok betöltésekor.");
             } finally {
-                btn.innerText = "Adatok Betöltése";
+                btn.innerText = "LISTA BETÖLTÉSE";
                 btn.disabled = false;
             }
         }
 
-        function renderLists() {
+        function renderLists(leaders, followers) {
             const pool = document.getElementById('follower-pool');
-            const table = document.getElementById('main-table-body');
-            
-            // Followerek listája
+            const table = document.getElementById('pairing-table');
+
+            // Ha az API egyben adja le őket, itt manuálisan is szétválaszthatod
+            // Most példaként betöltjük őket
             pool.innerHTML = followers.map(f => `
-                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm cursor-move hover:border-blue-300 transition text-sm font-medium text-slate-700" data-id="${f.id}">
-                    <span class="text-blue-500 mr-2">#${f.bib_number || '?'}</span> ${f.full_name}
+                <div class="p-3 bg-white border rounded shadow-sm cursor-grab hover:border-blue-500 text-sm font-medium" data-bib="${f.bib}">
+                    <span class="text-blue-600 font-bold">#${f.bib}</span> ${f.name}
                 </div>
             `).join('');
+            
+            document.getElementById('f-count').innerText = followers.length;
 
-            document.getElementById('follower-count').innerText = followers.length;
-
-            // Leaderek táblázata
-            table.innerHTML = leaders.map(l => `
-                <tr class="group hover:bg-slate-50 transition">
-                    <td class="p-4 text-center drag-handle text-slate-300 group-hover:text-slate-500 font-bold">⋮⋮</td>
-                    <td class="p-4">
-                        <div class="flex items-center gap-3">
-                            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">#${l.bib_number || '?'}</span>
-                            <span class="font-semibold text-slate-800">${l.full_name}</span>
+            table.innerHTML = leaders.map((l, index) => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-3 text-center font-mono text-gray-300 drag-handle cursor-move">:::</td>
+                    <td class="p-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-gray-800 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">#${l.bib}</span>
+                            <span class="font-bold text-slate-700">${l.name}</span>
                         </div>
                     </td>
-                    <td class="p-4">
-                        <div class="follower-slot min-h-[45px] border-2 border-dashed border-slate-100 rounded-lg p-1 bg-slate-50/50">
-                            </div>
+                    <td class="p-3">
+                        <div class="follower-slot min-h-[44px] border-2 border-dashed border-gray-200 rounded-lg p-1 transition-colors"></div>
                     </td>
                 </tr>
             `).join('');
 
-            setupDragAndDrop();
+            initSortables();
         }
 
-        function setupDragAndDrop() {
-            // Followerek mozgatása a poolból a slotokba
+        function initSortables() {
+            // Followerek mozgatása
             new Sortable(document.getElementById('follower-pool'), {
-                group: 'followers',
+                group: 'dancers',
                 animation: 150,
                 ghostClass: 'ghost'
             });
 
             document.querySelectorAll('.follower-slot').forEach(slot => {
                 new Sortable(slot, {
-                    group: 'followers',
+                    group: 'dancers',
                     animation: 150,
                     ghostClass: 'ghost',
                     onAdd: function (evt) {
-                        // Ha már van benne valaki, ne engedjünk többet
                         if (evt.to.children.length > 1) {
                             document.getElementById('follower-pool').appendChild(evt.item);
                         }
@@ -167,8 +184,8 @@
                 });
             });
 
-            // Sorok (párok) rendezése
-            new Sortable(document.getElementById('main-table-body'), {
+            // Sorrend (párok) mozgatása
+            new Sortable(document.getElementById('pairing-table'), {
                 handle: '.drag-handle',
                 animation: 150,
                 ghostClass: 'ghost'
