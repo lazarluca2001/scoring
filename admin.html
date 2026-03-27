@@ -1,58 +1,31 @@
-<!DOCTYPE html>
-<html lang="hu">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin - Versenyzők Feltöltése</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 p-6">
-    <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
-        <h1 class="text-xl font-bold mb-4 text-slate-800">1. Kategória megadása</h1>
-        <input id="cat-name" type="text" placeholder="Pl: Intermediate_Final" class="w-full p-3 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-blue-500">
-        
-        <h1 class="text-xl font-bold mb-4 text-slate-800">2. Adatok beillesztése</h1>
-        <textarea id="raw-input" class="w-full h-48 border p-4 rounded-xl text-xs font-mono mb-4 bg-slate-50" placeholder="#249Rafal Grzelak1#247Stefanie Tschom..."></textarea>
-        
-        <button id="up-btn" onclick="processAndUpload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all">
-            LISTA FELTÖLTÉSE A TÁBLÁZATBA
-        </button>
+<div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200">
+    <div class="space-y-4">
+        <input id="event-name" type="text" placeholder="Esemény fül neve (pl: KingSwing2026)" class="w-full p-3 border rounded-xl font-bold bg-blue-50">
+        <input id="cat-name" type="text" placeholder="Versenykategória (pl: Novice_Final)" class="w-full p-3 border rounded-xl">
+        <textarea id="raw-input" class="w-full h-32 border p-3 rounded-xl text-xs font-mono" placeholder="BibLeaderPosBibFollower massza..."></textarea>
+        <button onclick="upload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">ADATOK HOZZÁADÁSA AZ ESEMÉNYHEZ</button>
     </div>
+</div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
+<script>
+async function upload() {
+    const event = document.getElementById('event-name').value;
+    const cat = document.getElementById('cat-name').value;
+    const text = document.getElementById('raw-input').value;
+    
+    const parts = text.split('#').filter(p => p.trim() !== "");
+    let dancers = parts.map(p => {
+        const bib = p.match(/^(\d+)/)[1];
+        let name = p.replace(bib, '').replace(/\d+$/, '').trim();
+        let role = p.toLowerCase().includes('follower') ? 'Follower' : 'Leader';
+        return { bib, name, role };
+    });
 
-        async function processAndUpload() {
-            const btn = document.getElementById('up-btn');
-            const text = document.getElementById('raw-input').value;
-            const category = document.getElementById('cat-name').value;
-
-            if(!text || !category) return alert("Minden mező kötelező!");
-
-            const parts = text.split('#').filter(p => p.trim() !== "");
-            let dancers = parts.map(p => {
-                const bibMatch = p.match(/^(\d+)/);
-                if(!bibMatch) return null;
-                const bib = bibMatch[1];
-                let name = p.replace(bib, '').replace(/\d+$/, '').trim();
-                let role = p.toLowerCase().includes('follower') ? 'Follower' : 'Leader';
-                return { bib, name, role };
-            }).filter(d => d !== null);
-
-            btn.disabled = true; btn.innerText = "Töltés...";
-
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    body: JSON.stringify({ action: "upload_dancers", category: category, data: dancers })
-                });
-                alert("✅ Sikeres feltöltés!");
-            } catch (e) {
-                alert("❌ Hiba történt!");
-            } finally {
-                btn.disabled = false; btn.innerText = "LISTA FELTÖLTÉSE A TÁBLÁZATBA";
-            }
-        }
-    </script>
-</body>
-</html>
+    await fetch("https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec", {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({ action: "upload_dancers", eventName: event, category: cat, data: dancers })
+    });
+    alert(cat + " hozzáadva a " + event + " laphoz!");
+}
+</script>
