@@ -1,31 +1,79 @@
-<div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200">
-    <div class="space-y-4">
-        <input id="event-name" type="text" placeholder="Esemény fül neve (pl: KingSwing2026)" class="w-full p-3 border rounded-xl font-bold bg-blue-50">
-        <input id="cat-name" type="text" placeholder="Versenykategória (pl: Novice_Final)" class="w-full p-3 border rounded-xl">
-        <textarea id="raw-input" class="w-full h-32 border p-3 rounded-xl text-xs font-mono" placeholder="BibLeaderPosBibFollower massza..."></textarea>
-        <button onclick="upload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">ADATOK HOZZÁADÁSA AZ ESEMÉNYHEZ</button>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - King Swing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+        <h1 class="text-2xl font-bold mb-6 italic text-slate-800 border-b pb-2">Admin Feltöltés</h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Esemény neve (Fül neve)</label>
+                <input id="event-name" type="text" placeholder="pl: KingSwing2026" class="w-full p-3 border rounded-xl bg-blue-50 font-bold outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Kategória</label>
+                <input id="cat-name" type="text" placeholder="pl: Novice_Final" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Scoring.dance adatok (# rajtszámmal)</label>
+                <textarea id="raw-input" class="w-full h-40 border p-3 rounded-xl text-xs font-mono bg-slate-50" placeholder="#249Rafal Grzelak..."></textarea>
+            </div>
+
+            <button id="up-btn" onclick="upload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all shadow-lg active:scale-95">
+                ADATOK HOZZÁADÁSA
+            </button>
+        </div>
     </div>
-</div>
 
-<script>
-async function upload() {
-    const event = document.getElementById('event-name').value;
-    const cat = document.getElementById('cat-name').value;
-    const text = document.getElementById('raw-input').value;
-    
-    const parts = text.split('#').filter(p => p.trim() !== "");
-    let dancers = parts.map(p => {
-        const bib = p.match(/^(\d+)/)[1];
-        let name = p.replace(bib, '').replace(/\d+$/, '').trim();
-        let role = p.toLowerCase().includes('follower') ? 'Follower' : 'Leader';
-        return { bib, name, role };
-    });
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
 
-    await fetch("https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec", {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({ action: "upload_dancers", eventName: event, category: cat, data: dancers })
-    });
-    alert(cat + " hozzáadva a " + event + " laphoz!");
-}
-</script>
+        async function upload() {
+            const btn = document.getElementById('up-btn');
+            const event = document.getElementById('event-name').value;
+            const cat = document.getElementById('cat-name').value;
+            const text = document.getElementById('raw-input').value;
+
+            if(!event || !cat || !text) return alert("Tölts ki minden mezőt!");
+
+            const parts = text.split('#').filter(p => p.trim() !== "");
+            let dancers = parts.map(p => {
+                const match = p.match(/^(\d+)/);
+                if(!match) return null;
+                const bib = match[1];
+                let name = p.replace(bib, '').replace(/\d+$/, '').trim();
+                let role = p.toLowerCase().includes('follower') ? 'Follower' : 'Leader';
+                return { bib, name, role };
+            }).filter(d => d !== null);
+
+            btn.disabled = true; btn.innerText = "Küldés...";
+
+            try {
+                // Fontos: Itt NINCS no-cors!
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        action: "upload_dancers", 
+                        eventName: event, 
+                        category: cat, 
+                        data: dancers 
+                    })
+                });
+                alert("Sikeresen hozzáadva: " + cat);
+                document.getElementById('raw-input').value = "";
+            } catch (e) {
+                alert("Hiba! Ellenőrizd a konzolt.");
+                console.error(e);
+            } finally {
+                btn.disabled = false; btn.innerText = "ADATOK HOZZÁADÁSA";
+            }
+        }
+    </script>
+</body>
+</html>
