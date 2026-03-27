@@ -1,0 +1,10 @@
+<script>
+async function uploadToSheets(pairs) {
+    const url = "IDE_A_SCRIPT_URL";
+    await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({ action: "upload_base", data: pairs })
+    });
+    alert("Adatok feltöltve!");
+}
+</script>
