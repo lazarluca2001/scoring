@@ -1,232 +1,179 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Döntő Rangsoroló</title>
-  <style>
-    :root {
-      --bg: #0b0e1a;
-      --panel: #181c31;
-      --border: #31385f;
-      --text: #f5f7ff;
-      --accent: #7c9cff;
-      --radius: 16px;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 500px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .header h1 {
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-      color: var(--accent);
-    }
-
-    .ranking-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .rank-card {
-      display: grid;
-      grid-template-columns: 40px 70px 1fr 30px;
-      align-items: center;
-      gap: 12px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      cursor: grab;
-      user-select: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .rank-card:active {
-      cursor: grabbing;
-    }
-
-    .rank-card.dragging {
-      opacity: 0.5;
-      transform: scale(0.95);
-      border-color: var(--accent);
-    }
-
-    .place-badge {
-      font-weight: 800;
-      color: var(--accent);
-      font-size: 1.1rem;
-    }
-
-    .pair-number {
-      color: #aeb6d6;
-      font-weight: 600;
-    }
-
-    .leader-name {
-      font-weight: 500;
-    }
-
-    .drag-icon {
-      color: #4a5481;
-      text-align: right;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    button {
-      flex: 1;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: opacity 0.2s;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #2a325a;
-      padding: 10px 20px;
-      border-radius: 20px;
-      border: 1px solid var(--accent);
-      opacity: 0;
-      transition: 0.3s;
-      pointer-events: none;
-    }
-
-    .toast.show {
-      opacity: 1;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J&J Verseny Kezelő</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        .ghost { opacity: 0.4; background: #e0f2fe; }
+        .drag-handle { cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
+        .follower-slot:empty::after {
+            content: 'Húzz ide egy követőt';
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            display: block;
+            text-align: center;
+            padding-top: 8px;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen pb-20">
 
-<div class="container">
-  <div class="header">
-    <h1>All-Stars Döntő</h1>
-    <p style="color: #aeb6d6; font-size: 0.9rem;">Húzd a neveket a sorrend beállításához!</p>
-  </div>
+    <nav class="bg-white shadow-sm border-b p-4 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                🕺 J&J Manager
+            </h1>
+            <div class="flex gap-2 items-center">
+                <select id="division-select" class="p-2 border rounded text-sm bg-gray-50">
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="All-Star">All-Star</option>
+                    <option value="Champion">Champion</option>
+                </select>
+                <button onclick="loadCompetitionData()" id="load-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition">
+                    Adatok Betöltése
+                </button>
+            </div>
+        </div>
+    </nav>
 
-  <div id="rankingList" class="ranking-list"></div>
+    <main class="max-w-6xl mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6">
+        
+        <div class="w-full md:w-1/3">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-24">
+                <div class="bg-blue-50 p-3 border-b border-blue-100 flex justify-between items-center">
+                    <h2 class="font-bold text-blue-700 uppercase text-xs tracking-wider">Várakozó Followerek</h2>
+                    <span id="follower-count" class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">0</span>
+                </div>
+                <div id="follower-pool" class="p-4 min-h-[400px] max-h-[70vh] overflow-y-auto space-y-2">
+                    <p class="text-slate-400 text-center text-sm py-10 italic">Töltsd be az adatokat...</p>
+                </div>
+            </div>
+        </div>
 
-  <div class="actions">
-    <button id="copyBtn">Eredmény másolása</button>
-  </div>
-</div>
+        <div class="w-full md:w-2/3">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 p-3 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-700 uppercase text-xs tracking-wider">Bevonulási sorrend & Párok</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 text-xs uppercase bg-slate-50">
+                                <th class="p-4 w-12 text-center">Rend.</th>
+                                <th class="p-4">Leader</th>
+                                <th class="p-4">Follower</th>
+                            </tr>
+                        </thead>
+                        <tbody id="main-table-body" class="divide-y divide-slate-100">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-<script>
-  // Adatok a kép alapján
-  let contestants = [
-    { num: "#249", name: "Rafal Grzelak" },
-    { num: "#359", name: "Raphael Ettedgui" },
-    { num: "#389", name: "Andreas Danielsson" },
-    { num: "#392", name: "Damian Gruszczyński" },
-    { num: "#396", name: "Stanley Seguy" },
-    { num: "#400", name: "Florian Hamm" },
-    { num: "#430", name: "Allan Thivoz" },
-    { num: "#443", name: "Julien Bec" },
-    { num: "#860", name: "Florian Simon" },
-    { num: "#876", name: "Joshua Schubert" }
-  ];
+    </main>
 
-  const listElement = document.getElementById('rankingList');
+    <script>
+        const API_URL = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://scoring.dance/api/v1/events/373/registrations");
+        
+        let leaders = [];
+        let followers = [];
 
-  function render() {
-    listElement.innerHTML = '';
-    contestants.forEach((person, index) => {
-      const card = document.createElement('div');
-      card.className = 'rank-card';
-      card.draggable = true;
-      card.dataset.index = index;
+        async function loadCompetitionData() {
+            const btn = document.getElementById('load-btn');
+            const division = document.getElementById('division-select').value;
+            btn.innerText = "Töltés...";
+            btn.disabled = true;
 
-      card.innerHTML = `
-        <div class="place-badge">${index + 1}.</div>
-        <div class="pair-number">${person.num}</div>
-        <div class="leader-name">${person.name}</div>
-        <div class="drag-icon">☰</div>
-      `;
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const competitors = JSON.parse(data.contents);
 
-      card.addEventListener('dragstart', handleDragStart);
-      card.addEventListener('dragover', handleDragOver);
-      card.addEventListener('drop', handleDrop);
-      card.addEventListener('dragend', handleDragEnd);
+                // Szűrés kategóriára és szerepkörre (Leader/Follower szétválasztás)
+                // Megjegyzés: A scoring.dance API struktúrájától függően a 'role' mezőt nézzük
+                const filtered = competitors.filter(c => c.division_name.includes(division));
+                
+                leaders = filtered.filter(c => c.role === "leader" || c.role_name === "Leader");
+                followers = filtered.filter(c => c.role === "follower" || c.role_name === "Follower");
 
-      listElement.appendChild(card);
-    });
-  }
+                renderLists();
+            } catch (error) {
+                alert("Hiba az adatok letöltésekor. Próbáld újra!");
+                console.error(error);
+            } finally {
+                btn.innerText = "Adatok Betöltése";
+                btn.disabled = false;
+            }
+        }
 
-  let draggedIdx = null;
+        function renderLists() {
+            const pool = document.getElementById('follower-pool');
+            const table = document.getElementById('main-table-body');
+            
+            // Followerek listája
+            pool.innerHTML = followers.map(f => `
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm cursor-move hover:border-blue-300 transition text-sm font-medium text-slate-700" data-id="${f.id}">
+                    <span class="text-blue-500 mr-2">#${f.bib_number || '?'}</span> ${f.full_name}
+                </div>
+            `).join('');
 
-  function handleDragStart(e) {
-    draggedIdx = this.dataset.index;
-    this.classList.add('dragging');
-  }
+            document.getElementById('follower-count').innerText = followers.length;
 
-  function handleDragOver(e) {
-    e.preventDefault();
-  }
+            // Leaderek táblázata
+            table.innerHTML = leaders.map(l => `
+                <tr class="group hover:bg-slate-50 transition">
+                    <td class="p-4 text-center drag-handle text-slate-300 group-hover:text-slate-500 font-bold">⋮⋮</td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">#${l.bib_number || '?'}</span>
+                            <span class="font-semibold text-slate-800">${l.full_name}</span>
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <div class="follower-slot min-h-[45px] border-2 border-dashed border-slate-100 rounded-lg p-1 bg-slate-50/50">
+                            </div>
+                    </td>
+                </tr>
+            `).join('');
 
-  function handleDrop(e) {
-    const targetIdx = this.dataset.index;
-    if (draggedIdx === null || draggedIdx === targetIdx) return;
+            setupDragAndDrop();
+        }
 
-    const movedItem = contestants.splice(draggedIdx, 1)[0];
-    contestants.splice(targetIdx, 0, movedItem);
-    
-    render();
-  }
+        function setupDragAndDrop() {
+            // Followerek mozgatása a poolból a slotokba
+            new Sortable(document.getElementById('follower-pool'), {
+                group: 'followers',
+                animation: 150,
+                ghostClass: 'ghost'
+            });
 
-  function handleDragEnd() {
-    this.classList.remove('dragging');
-    draggedIdx = null;
-  }
+            document.querySelectorAll('.follower-slot').forEach(slot => {
+                new Sortable(slot, {
+                    group: 'followers',
+                    animation: 150,
+                    ghostClass: 'ghost',
+                    onAdd: function (evt) {
+                        // Ha már van benne valaki, ne engedjünk többet
+                        if (evt.to.children.length > 1) {
+                            document.getElementById('follower-pool').appendChild(evt.item);
+                        }
+                    }
+                });
+            });
 
-  document.getElementById('copyBtn').addEventListener('click', async () => {
-    const text = contestants.map((c, i) => `${i + 1}. hely: ${c.num} - ${c.name}`).join('\n');
-    await navigator.clipboard.writeText(text);
-    
-    const toast = document.createElement('div');
-    toast.className = 'toast show';
-    toast.textContent = 'Eredmények a vágólapon!';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
-  });
-
-  render();
-</script>
-
+            // Sorok (párok) rendezése
+            new Sortable(document.getElementById('main-table-body'), {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'ghost'
+            });
+        }
+    </script>
 </body>
 </html>
