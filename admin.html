@@ -1,6 +1,6 @@
 <script>
 async function uploadToSheets(pairs) {
-    const url = "IDE_A_SCRIPT_URL";
+    const url = "https://script.google.com/macros/s/AKfycbzuv-8S8D-t2CpOeO9PAzBO7qmH0w8fZrQYMFe7-rnwSTfjFPoeEJzrfgj_5gmsgqsk/exec";
     await fetch(url, {
         method: "POST",
         body: JSON.stringify({ action: "upload_base", data: pairs })
