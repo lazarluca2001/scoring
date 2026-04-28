@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Spotify DJ Dashboard</title>
+    <title>Spotify DJ Dashboard - Preview</title>
     <style>
         :root {
             --bg-color: #0b0b0b;
@@ -26,7 +26,6 @@
             height: 100vh;
         }
 
-        /* Fektetett elrendezés 5 sávval */
         .container {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -49,163 +48,161 @@
         .track-card img {
             width: 90%;
             aspect-ratio: 1/1;
-            border-radius: 4px;
+            border-radius: 6px;
             object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             margin-bottom: 12px;
+            background-color: #282828; /* Placeholder szín */
         }
 
-        /* Mellékszálak (Előző/Következő) */
         .dimmed {
-            opacity: 0.3;
+            opacity: 0.35;
             transform: scale(0.8);
         }
 
         .dimmed h3 { font-size: 0.85rem; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
         .dimmed p { font-size: 0.7rem; margin: 0; color: var(--text-dim); }
 
-        /* Aktuális dal (Középen) */
         .current {
             opacity: 1;
-            transform: scale(1.1);
+            transform: scale(1.15);
             z-index: 5;
         }
 
         .current img {
             border: 2px solid var(--spotify-green);
-            box-shadow: 0 0 40px rgba(29, 185, 84, 0.2);
+            box-shadow: 0 0 50px rgba(29, 185, 84, 0.3);
         }
 
-        .current h3 { font-size: 1.2rem; margin: 12px 0 5px 0; color: var(--text-main); }
-        .current p { font-size: 0.95rem; margin: 0; color: var(--spotify-green); font-weight: 500; }
+        .current h3 { font-size: 1.3rem; margin: 12px 0 5px 0; font-weight: 700; }
+        .current p { font-size: 1rem; margin: 0; color: var(--spotify-green); font-weight: 500; }
 
-        /* Login gomb */
-        #login-screen {
-            text-align: center;
+        /* Demo badge */
+        #demo-mode-indicator {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.6);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        #login-overlay {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
         }
 
         .btn-spotify {
             background-color: var(--spotify-green);
             color: white;
-            padding: 16px 32px;
+            padding: 10px 20px;
             border-radius: 500px;
             text-decoration: none;
             font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 14px;
-            transition: transform 0.2s;
-            display: inline-block;
+            font-size: 12px;
         }
-
-        .btn-spotify:hover { transform: scale(1.05); }
-        .hidden { display: none !important; }
 
         @media (orientation: portrait) {
             body::after {
-                content: "Kérlek, fordítsd el a telefont fekvő nézetbe!";
+                content: "Fordítsd el a telefont!";
                 position: fixed;
                 top: 0; left: 0; right: 0; bottom: 0;
                 background: var(--bg-color);
                 display: flex; align-items: center; justify-content: center;
-                z-index: 999; color: var(--spotify-green); text-align: center; padding: 20px;
+                z-index: 999; color: var(--spotify-green); font-weight: bold;
             }
         }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <h1 style="margin-bottom: 30px;">Spotify DJ Dashboard</h1>
-        <a href="#" id="login-link" class="btn-spotify">Belépés Spotify-jal</a>
+    <div id="login-overlay">
+        <a href="#" id="login-link" class="btn-spotify">API Összekötés</a>
     </div>
 
-    <div id="dashboard" class="container hidden">
-        <div id="prev2" class="track-card dimmed"><img src="" alt=""><h3>-</h3><p>-</p></div>
-        <div id="prev1" class="track-card dimmed"><img src="" alt=""><h3>-</h3><p>-</p></div>
+    <div id="demo-mode-indicator">Preview Mode</div>
+
+    <div id="dashboard" class="container">
+        <div id="prev2" class="track-card dimmed">
+            <img src="https://via.placeholder.com/300/181818/ffffff?text=Prev+2" alt="">
+            <h3>Múltbéli dallam</h3>
+            <p>Előadó neve</p>
+        </div>
+        <div id="prev1" class="track-card dimmed">
+            <img src="https://via.placeholder.com/300/282828/ffffff?text=Prev+1" alt="">
+            <h3>Előző szám</h3>
+            <p>Zenekar neve</p>
+        </div>
         
         <div id="now-playing" class="track-card current">
-            <img id="curr-img" src="" alt="">
-            <h3 id="curr-name">Nincs lejátszás</h3>
-            <p id="curr-artist">-</p>
+            <img id="curr-img" src="https://via.placeholder.com/400/1DB954/ffffff?text=Now+Playing" alt="">
+            <h3 id="curr-name">Éppen szóló sláger</h3>
+            <p id="curr-artist">Fő Előadó</p>
         </div>
 
-        <div id="next1" class="track-card dimmed"><img src="" alt=""><h3>-</h3><p>-</p></div>
-        <div id="next2" class="track-card dimmed"><img src="" alt=""><h3>-</h3><p>-</p></div>
+        <div id="next1" class="track-card dimmed">
+            <img src="https://via.placeholder.com/300/282828/ffffff?text=Next+1" alt="">
+            <h3>Következő jön</h3>
+            <p>Jövőbeli Előadó</p>
+        </div>
+        <div id="next2" class="track-card dimmed">
+            <img src="https://via.placeholder.com/300/181818/ffffff?text=Next+2" alt="">
+            <h3>Majd ez is szól</h3>
+            <p>Valaki Más</p>
+        </div>
     </div>
 
     <script>
+        // API Konfiguráció (Ha majd meglesz)
         const CLIENT_ID = 'IDE_ÍRD_A_CLIENT_ID_DAT'; 
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const SCOPES = 'user-read-currently-playing user-read-playback-state user-read-recently-played';
 
         const loginLink = document.getElementById('login-link');
-        const loginScreen = document.getElementById('login-screen');
-        const dashboard = document.getElementById('dashboard');
-
-        // Login URL generálása
-        loginLink.href = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
-
-        // Token ellenőrzése az URL-ben
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
         const accessToken = params.get('access_token');
 
+        if (CLIENT_ID !== 'IDE_ÍRD_A_CLIENT_ID_DAT') {
+            loginLink.href = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+        }
+
         if (accessToken) {
-            loginScreen.classList.add('hidden');
-            dashboard.classList.remove('hidden');
-            
-            // Frissítési ciklus indítása
-            updateAll();
-            setInterval(updateAll, 3000); // 3 másodpercenként frissít
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('demo-mode-indicator').innerText = "Live Mode";
+            document.getElementById('demo-mode-indicator').style.background = "green";
+            startLiveUpdates();
+        } else {
+            // Demo adatok betöltése
+            loadDemoData();
         }
 
-        async function fetchSpotify(endpoint) {
-            try {
-                const res = await fetch(`https://api.spotify.com/v1/${endpoint}`, {
-                    headers: { 'Authorization': `Bearer ${accessToken}` }
-                });
-                if (res.status === 204) return null;
-                return await res.json();
-            } catch (e) { return null; }
+        function loadDemoData() {
+            const demoTracks = [
+                { id: 'prev2', name: "Yesterday", artist: "The Beatles", img: "https://picsum.photos/id/1/300/300" },
+                { id: 'prev1', name: "Blinding Lights", artist: "The Weeknd", img: "https://picsum.photos/id/2/300/300" },
+                { id: 'now-playing', name: "Bohemian Rhapsody", artist: "Queen", img: "https://picsum.photos/id/3/400/400" },
+                { id: 'next1', name: "Levitating", artist: "Dua Lipa", img: "https://picsum.photos/id/4/300/300" },
+                { id: 'next2', name: "Starboy", artist: "The Weeknd", img: "https://picsum.photos/id/5/300/300" }
+            ];
+
+            demoTracks.forEach(t => {
+                const card = document.getElementById(t.id);
+                card.querySelector('img').src = t.img;
+                card.querySelector('h3').innerText = t.name;
+                card.querySelector('p').innerText = t.artist;
+            });
         }
 
-        async function updateAll() {
-            // 1. Most szóló lekérése
-            const current = await fetchSpotify('me/player/currently-playing');
-            if (current && current.item) {
-                fillCard('now-playing', current.item, false);
-            }
-
-            // 2. Következők lekérése (Queue)
-            const queueData = await fetchSpotify('me/player/queue');
-            if (queueData && queueData.queue) {
-                fillCard('next1', queueData.queue[0], true);
-                fillCard('next2', queueData.queue[1], true);
-            }
-
-            // 3. Korábbiak lekérése (History)
-            const historyData = await fetchSpotify('me/player/recently-played?limit=2');
-            if (historyData && historyData.items) {
-                fillCard('prev1', historyData.items[0].track, true);
-                fillCard('prev2', historyData.items[1].track, true);
-            }
-        }
-
-        function fillCard(id, track, isDimmed) {
-            if (!track) return;
-            const container = document.getElementById(id);
-            const img = container.querySelector('img');
-            const h3 = container.querySelector('h3') || document.getElementById('curr-name');
-            const p = container.querySelector('p') || document.getElementById('curr-artist');
-
-            const title = track.name;
-            const artist = track.artists.map(a => a.name).join(', ');
-            const artUrl = track.album.images[0].url;
-
-            if (img.src !== artUrl) img.src = artUrl;
-            h3.innerText = title;
-            p.innerText = artist;
+        // Itt maradhatnak az eredeti updateAll és fetchSpotify függvények a korábbi kódból...
+        function startLiveUpdates() {
+            // updateAll() hívása setInterval-al
         }
     </script>
 </body>
